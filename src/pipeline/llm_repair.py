@@ -30,6 +30,9 @@ class LLMRepairInput(BaseModel):
     available_apis: list[APIConstraint]
     lab_state_summary: dict[str, Any]
     task: str
+    lab_state_initial: dict[str, Any] = Field(default_factory=dict)
+    lab_state_expected: dict[str, Any] = Field(default_factory=dict)
+    notice: str = ""
 
 
 class RepairNewCall(BaseModel):
@@ -91,17 +94,22 @@ def build_llm_input(
     applied_rule_repairs: list[dict[str, Any]],
     remaining_issues_after_rule_repair: list[dict[str, Any]],
     api_registry_path: str = "configs/api_registry.yaml",
-    lab_state_path: str = "configs/initial_lab_state.yaml",
+    initial_lab_state_path: str = "configs/initial_lab_state.yaml",
+    expected_lab_state_path: str = "configs/initial_lab_state.yaml",
+    notice_path: str = "configs/llm_repair_notice.txt",
 ) -> dict[str, Any]:
     available_apis = _build_available_apis_min_pack(
         api_registry_path=api_registry_path,
         remaining_issues=remaining_issues_after_rule_repair,
     )
     lab_state_summary = _build_min_lab_state_summary(
-        lab_state_path=lab_state_path,
+        initial_lab_state_path=initial_lab_state_path,
         workflow=workflow_before_llm_repair,
         remaining_issues=remaining_issues_after_rule_repair,
     )
+    lab_state_initial = _load_lab_state(initial_lab_state_path)
+    lab_state_expected = _load_lab_state(expected_lab_state_path)
+    notice = _load_notice_text(notice_path)
 
     payload = LLMRepairInput(
         protocol_text=protocol_text,
@@ -112,6 +120,9 @@ def build_llm_input(
         remaining_issues_after_rule_repair=remaining_issues_after_rule_repair,
         available_apis=available_apis,
         lab_state_summary=lab_state_summary,
+        lab_state_initial=lab_state_initial,
+        lab_state_expected=lab_state_expected,
+        notice=notice,
         task="Repair the workflow so it resolves remaining validation issues while preserving protocol intent.",
     )
     return payload.model_dump()
@@ -396,13 +407,11 @@ def _build_available_apis_min_pack(
 
 
 def _build_min_lab_state_summary(
-    lab_state_path: str,
+    initial_lab_state_path: str,
     workflow: Workflow,
     remaining_issues: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    raw = Path(lab_state_path).read_text(encoding="utf-8")
-    loaded = yaml.safe_load(raw)
-    state = loaded if isinstance(loaded, dict) else {}
+    state = _load_lab_state(initial_lab_state_path)
 
     related_tubes: set[str] = set()
     related_reagents: set[str] = set()
@@ -474,6 +483,21 @@ def _load_api_registry(path: str) -> dict[str, dict[str, Any]]:
     return registry
 
 
+def _load_lab_state(path: str) -> dict[str, Any]:
+    state_path = Path(path)
+    if not state_path.exists():
+        return {}
+    loaded = yaml.safe_load(state_path.read_text(encoding="utf-8"))
+    return loaded if isinstance(loaded, dict) else {}
+
+
+def _load_notice_text(path: str) -> str:
+    notice_path = Path(path)
+    if not notice_path.exists():
+        return ""
+    return notice_path.read_text(encoding="utf-8")
+
+
 def load_api_registry(path: str = "configs/api_registry.yaml") -> dict[str, dict[str, Any]]:
     return _load_api_registry(path)
 
@@ -514,6 +538,10 @@ def _default_config() -> dict[str, Any]:
         "require_json_output": True,
         "require_api_registry_constraint": True,
         "allow_full_workflow_rewrite": False,
+        "api_registry_path": "configs/api_registry.yaml",
+        "initial_lab_state_path": "configs/initial_lab_state.yaml",
+        "expected_lab_state_path": "configs/initial_lab_state.yaml",
+        "notice_path": "configs/llm_repair_notice.txt",
         "allowed_issue_types": ["PreconditionViolation", "OrderViolation", "MissingParameter"],
     }
 

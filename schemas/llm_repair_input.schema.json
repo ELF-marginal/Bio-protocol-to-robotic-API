@@ -11,6 +11,9 @@
     "remaining_issues_after_rule_repair",
     "available_apis",
     "lab_state_summary",
+    "lab_state_initial",
+    "lab_state_expected",
+    "notice",
     "task"
   ],
   "properties": {
@@ -34,6 +37,9 @@
       }
     },
     "lab_state_summary": { "type": "object" },
+    "lab_state_initial": { "type": "object" },
+    "lab_state_expected": { "type": "object" },
+    "notice": { "type": "string" },
     "task": { "type": "string" }
   }
 }

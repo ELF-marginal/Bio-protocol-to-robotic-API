@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLMGrounderInput",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "parsed_protocol",
+    "available_apis",
+    "grounder_task_instruction",
+    "notice"
+  ],
+  "properties": {
+    "protocol_id": { "type": "string" },
+    "parsed_protocol": { "type": "object" },
+    "available_apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "parameters"],
+        "properties": {
+          "name": { "type": "string" },
+          "parameters": { "type": "object" }
+        }
+      }
+    },
+    "lab_state_initial": { "type": "object" },
+    "lab_state_expected": { "type": "object" },
+    "grounder_task_instruction": { "type": "string" },
+    "notice": { "type": "string" }
+  }
+}

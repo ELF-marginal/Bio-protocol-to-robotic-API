@@ -1,19 +1,27 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "LLMGroundingInput",
+  "title": "LLMPlannerInput",
   "type": "object",
   "required": [
     "protocol_id",
-    "parsed_protocol",
+    "operations",
+    "operation_api_groups",
     "available_apis",
     "lab_state_initial",
     "lab_state_expected",
-    "grounding_task_instruction",
+    "planner_task_instruction",
     "notice"
   ],
   "properties": {
     "protocol_id": { "type": "string" },
-    "parsed_protocol": { "type": "object" },
+    "operations": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "operation_api_groups": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
     "available_apis": {
       "type": "array",
       "items": {
@@ -27,7 +35,7 @@
     },
     "lab_state_initial": { "type": "object" },
     "lab_state_expected": { "type": "object" },
-    "grounding_task_instruction": { "type": "string" },
+    "planner_task_instruction": { "type": "string" },
     "notice": { "type": "string" }
   }
 }

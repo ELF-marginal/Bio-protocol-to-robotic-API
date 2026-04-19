@@ -1,78 +1,21 @@
-case_id: "case_008_implicit_target"
-input_protocol: "Take the sample tube from the fridge. Add 120 uL buffer. Mix 6 times. Incubate at 37C for 15 minutes."
-expected_actions:
-  - "fridge.open"
-  - "robot.pick"
-  - "fridge.close"
-  - "tube.uncap"
-  - "pipette.attach_tip"
-  - "pipette.transfer"
-  - "pipette.mix"
-  - "pipette.discard_tip"
-  - "tube.cap"
-  - "heater.set_temperature"
-  - "heater.place"
-  - "timer.wait"
-  - "heater.remove"
-  - "robot.place"
-expected_parsed_steps:
-  - action: "take"
-    item: "sample_tube"
-  - action: "add"
-    source: "buffer"
-    target: "sample_tube"
-    parameters:
-      volume_ul: 120
-  - action: "mix"
-    target: "sample_tube"
-    parameters:
-      times: 6
-  - action: "incubate"
-    target: "sample_tube"
-    parameters:
-      temperature_c: 37
-      duration_min: 15
-expected_workflow_sequence:
-  - "fridge.open"
-  - "robot.pick"
-  - "fridge.close"
-  - "tube.uncap"
-  - "pipette.attach_tip"
-  - "pipette.transfer"
-  - "pipette.mix"
-  - "pipette.discard_tip"
-  - "tube.cap"
-  - "heater.set_temperature"
-  - "heater.place"
-  - "timer.wait"
-  - "heater.remove"
-  - "fridge.open"
-  - "robot.place"
-  - "fridge.close"
-expected_parameters:
-  - api: "robot.pick"
-    args:
-      item: "sample_tube"
-      from_location: "fridge"
-  - api: "pipette.transfer"
-    args:
-      source: "buffer"
-      target: "sample_tube"
-      volume_ul: 120
-  - api: "pipette.mix"
-    args:
-      container: "sample_tube"
-      volume_ul: 120
-      times: 6
-  - api: "heater.set_temperature"
-    args:
-      temperature_c: 37
-  - api: "timer.wait"
-    args:
-      minutes: 15
-  - api: "robot.place"
-    args:
-      item: "sample_tube"
-      to_location: "fridge"
-must_not_include: []
+case_id: case_008_implicit_target
+input_protocol: "Take the tube from the fridge. Add 120 uL buffer. Mix 6x. Incubate for 15 minutes at 37C."
 expected_success: true
+expected_llm_parser_invoked: true
+expected_workflow_sequence:
+  - fridge.open
+  - fridge.take_out
+  - fridge.close
+  - tube.uncap
+  - pipette.attach_tip
+  - pipette.transfer
+  - pipette.mix
+  - heater.set_temperature
+  - heater.incubate
+expected_parameters:
+  - api: pipette.transfer
+    args: { volume_ul: 120, source: buffer, target: sample_tube }
+  - api: pipette.mix
+    args: { container: sample_tube, times: 6 }
+  - api: heater.incubate
+    args: { duration_min: 15 }

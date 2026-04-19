@@ -1,0 +1,133 @@
+fridge:
+  is_open: false
+  temperature_c: 4
+  items:
+    - bg11_medium
+    - lysis_buffer
+    - precipitation_buffer
+    - isopropanol_100
+    - ethanol_70_cold
+    - depc_milliq_water
+    - paper_towel_clean_pack
+
+freezer:
+  is_open: false
+  temperature_c: -80
+  items: []
+
+bench:
+  items:
+    - culture_flask_150ml
+    - beckman_centrifuge
+    - benchtop_centrifuge
+    - vortex_mixer
+    - cold_station
+    - waste_liquid
+    - tube_rack
+    - microfuge_tube_box_1p7ml
+
+cold_station:
+  has_ice: true
+  items: []
+
+centrifuges:
+  beckman_centrifuge:
+    location: bench
+    available: true
+    max_speed_xg: 5000
+    slots: ["A1", "A2", "B1", "B2"]
+    loaded_items: []
+
+  benchtop_centrifuge:
+    location: bench
+    available: true
+    max_speed_xg: 16000
+    slots: ["1", "2", "3", "4", "5", "6"]
+    loaded_items: []
+
+vortex:
+  vortex_mixer:
+    location: bench
+    available: true
+
+pipettes:
+  p1000:
+    has_tip: false
+    max_volume_ul: 1000
+    location: bench
+
+tubes:
+  sample_tube:
+    tube_type: culture_tube
+    max_volume_ul: 5000
+    is_capped: true
+    location: bench
+    temperature_c: 25
+    contents:
+      - cyanobacteria_cell_suspension
+    volume_ul: 1000
+    pellet_present: false
+    supernatant_present: true
+    cleanliness: working
+
+  pellet_tube:
+    tube_type: centrifuge_tube
+    max_volume_ul: 50000
+    is_capped: true
+    location: bench
+    temperature_c: 25
+    contents:
+      - cyanobacteria_culture_150ml
+    volume_ul: 150000
+    pellet_present: false
+    supernatant_present: true
+    cleanliness: working
+
+consumables:
+  clean_tubes:
+    available:
+      - microfuge_tube_1
+      - microfuge_tube_2
+      - microfuge_tube_3
+      - microfuge_tube_4
+      - microfuge_tube_5
+
+reagents:
+  bg11_medium:
+    location: fridge
+    volume_ul: 50000
+
+  lysis_buffer:
+    location: fridge
+    volume_ul: 10000
+
+  precipitation_buffer:
+    location: fridge
+    volume_ul: 10000
+
+  isopropanol_100:
+    location: fridge
+    volume_ul: 20000
+
+  ethanol_70_cold:
+    location: fridge
+    volume_ul: 20000
+
+  depc_milliq_water:
+    location: fridge
+    volume_ul: 10000
+
+supplies:
+  paper_towel_clean_pack:
+    location: fridge
+    available: true
+
+waste:
+  waste_liquid:
+    location: bench
+    volume_ul: 0
+
+storage_targets:
+  freezer_minus_80:
+    location: freezer
+    temperature_c: -80

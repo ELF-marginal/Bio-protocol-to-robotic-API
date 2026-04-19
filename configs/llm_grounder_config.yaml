@@ -1,4 +1,4 @@
-llm_parser:
+﻿llm_grounder:
   enabled: false
   provider: "deepseek"
   model: "deepseek-chat"
@@ -6,6 +6,11 @@ llm_parser:
   max_retries: 2
   timeout_seconds: 300
   endpoint: "https://api.deepseek.com/chat/completions"
+  api_registry_path: "configs/api_registry.yaml"
+  initial_lab_state_path: "configs/initial_lab_state.yaml"
+  expected_lab_state_path: "configs/initial_lab_state.yaml"
+  notice_path: "configs/llm_grounder_notice.txt"
   save_debug_files: true
   require_json_output: true
   require_schema_validation: true
+

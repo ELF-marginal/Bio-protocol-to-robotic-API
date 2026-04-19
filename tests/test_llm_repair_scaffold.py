@@ -44,6 +44,17 @@ def test_llm_input_contains_minimal_api_descriptor_pack() -> None:
     assert "name" in first_api
     assert "required_args" in first_api
     assert "arg_types" in first_api
+    assert isinstance(payload["lab_state_initial"], dict)
+    assert isinstance(payload["lab_state_expected"], dict)
+    assert "notice" in payload
+
+
+def test_llm_repair_config_contains_path_fields() -> None:
+    cfg = load_llm_repair_config()
+    assert "api_registry_path" in cfg
+    assert "initial_lab_state_path" in cfg
+    assert "expected_lab_state_path" in cfg
+    assert "notice_path" in cfg
 
 
 def test_invoke_llm_repair_deepseek_missing_key() -> None:

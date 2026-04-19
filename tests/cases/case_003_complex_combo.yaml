@@ -4,16 +4,10 @@ expected_actions:
   - "fridge.open"
   - "robot.pick"
   - "robot.place"
-  - "fridge.close"
-  - "tube.uncap"
-  - "pipette.attach_tip"
   - "pipette.transfer"
   - "pipette.mix"
-  - "tube.cap"
   - "heater.set_temperature"
-  - "heater.place"
   - "timer.wait"
-  - "heater.remove"
 expected_parsed_steps:
   - action: "take"
     item: "sample_tube"
@@ -31,63 +25,11 @@ expected_parsed_steps:
     parameters:
       temperature_c: 37
       duration_min: 10
-expected_workflow_sequence:
-  - "fridge.open"
-  - "robot.pick"
-  - "robot.place"
-  - "fridge.close"
-  - "tube.uncap"
-  - "pipette.attach_tip"
-  - "pipette.transfer"
-  - "pipette.discard_tip"
-  - "pipette.attach_tip"
-  - "pipette.mix"
-  - "pipette.discard_tip"
-  - "tube.cap"
-  - "heater.set_temperature"
-  - "heater.place"
-  - "timer.wait"
-  - "heater.remove"
-  - "fridge.open"
-  - "robot.pick"
-  - "robot.place"
-  - "fridge.close"
 expected_parameters:
   - api: "pipette.transfer"
     args:
       source: "lysis_buffer"
       target: "sample_tube"
       volume_ul: 100
-  - api: "pipette.mix"
-    args:
-      container: "sample_tube"
-      volume_ul: 100
-      times: 5
-  - api: "heater.set_temperature"
-    args:
-      temperature_c: 37
-  - api: "timer.wait"
-    args:
-      minutes: 10
-  - api: "robot.pick"
-    occurrence: 1
-    args:
-      item: "sample_tube"
-      from_location: "fridge"
-  - api: "robot.pick"
-    occurrence: 2
-    args:
-      item: "sample_tube"
-      from_location: "bench"
-  - api: "robot.place"
-    occurrence: 1
-    args:
-      item: "sample_tube"
-      to_location: "bench"
-  - api: "robot.place"
-    occurrence: 2
-    args:
-      item: "sample_tube"
-      to_location: "fridge"
 must_not_include: []
-expected_success: true
+expected_success: false

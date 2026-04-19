@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,8 +9,8 @@ import yaml
 from src.models.contracts import ExecutionResult, ProtocolInput
 from src.pipeline.executor import execute_workflow
 from src.pipeline.llm_grounder import (
-    load_llm_grounding_config,
-    run_grounding_backend,
+    load_llm_grounder_config,
+    run_grounder_backend,
 )
 from src.pipeline.llm_repair import (
     apply_llm_operations,
@@ -61,7 +61,7 @@ def run_benchmark(
     output_dir: Path,
     enable_llm_repair: bool = False,
     enable_llm_parser: bool = False,
-    enable_llm_grounding: bool = False,
+    enable_llm_grounder: bool = False,
 ) -> dict[str, Any]:
     ensure_dir(output_dir)
     case_files = sorted(cases_dir.glob("*.yaml"))
@@ -195,22 +195,22 @@ def run_benchmark(
         llm_parser_input_payload = parser_backend.get("llm_parser_input")
         llm_parser_raw_output_payload = parser_backend.get("llm_parser_raw_output")
         llm_parser_parsed_output_payload = parser_backend.get("llm_parser_parsed_output")
-        llm_grounding_input_payload: dict[str, Any] | None = None
-        llm_grounding_raw_output_payload: dict[str, Any] | None = None
-        llm_grounding_parsed_output_payload: dict[str, Any] | None = None
+        llm_grounder_input_payload: dict[str, Any] | None = None
+        llm_grounder_raw_output_payload: dict[str, Any] | None = None
+        llm_grounder_parsed_output_payload: dict[str, Any] | None = None
 
-        llm_grounding_cfg = load_llm_grounding_config()
-        grounding_backend = run_grounding_backend(
+        llm_grounder_cfg = load_llm_grounder_config()
+        grounder_backend = run_grounder_backend(
             parsed_protocol=parsed,
-            enable_llm_grounding=enable_llm_grounding,
-            config=llm_grounding_cfg,
+            enable_llm_grounder=enable_llm_grounder,
+            config=llm_grounder_cfg,
         )
-        grounded = grounding_backend["workflow"]
-        grounding_result = grounding_backend["grounding_result"]
-        grounding_validation_result = grounding_backend["grounding_validation_result"]
-        llm_grounding_input_payload = grounding_backend.get("llm_grounding_input")
-        llm_grounding_raw_output_payload = grounding_backend.get("llm_grounding_raw_output")
-        llm_grounding_parsed_output_payload = grounding_backend.get("llm_grounding_parsed_output")
+        grounded = grounder_backend["workflow"]
+        grounding_result = grounder_backend["grounding_result"]
+        grounding_validation_result = grounder_backend["grounding_validation_result"]
+        llm_grounder_input_payload = grounder_backend.get("llm_grounder_input")
+        llm_grounder_raw_output_payload = grounder_backend.get("llm_grounder_raw_output")
+        llm_grounder_parsed_output_payload = grounder_backend.get("llm_grounder_parsed_output")
 
         if llm_parser_result.get("llm_parser_invoked", False):
             parser_llm_invoked_cases += 1
@@ -224,7 +224,7 @@ def run_benchmark(
         if isinstance(parser_reason, str) and parser_reason:
             parser_failure_reason_counts[parser_reason] = parser_failure_reason_counts.get(parser_reason, 0) + 1
 
-        if grounding_result.get("llm_grounding_invoked", False):
+        if grounding_result.get("llm_grounder_invoked", False):
             grounding_llm_invoked_cases += 1
         if grounding_result.get("grounding_valid", True):
             grounding_llm_success_cases += 1
@@ -281,6 +281,10 @@ def run_benchmark(
                 remaining_issues=remaining_issues,
             )
         if invoke_llm:
+            repair_api_registry_path = str(llm_cfg.get("api_registry_path", "configs/api_registry.yaml"))
+            repair_initial_lab_state_path = str(llm_cfg.get("initial_lab_state_path", "configs/initial_lab_state.yaml"))
+            repair_expected_lab_state_path = str(llm_cfg.get("expected_lab_state_path", "configs/initial_lab_state.yaml"))
+            repair_notice_path = str(llm_cfg.get("notice_path", "configs/llm_repair_notice.txt"))
             llm_invoked_cases += 1
             llm_repair_result["llm_invoked"] = True
 
@@ -291,6 +295,10 @@ def run_benchmark(
                 validation_issues_before_llm=validation_before.get("issues", []),
                 applied_rule_repairs=repair_payload.get("applied_repairs", []),
                 remaining_issues_after_rule_repair=remaining_issues,
+                api_registry_path=repair_api_registry_path,
+                initial_lab_state_path=repair_initial_lab_state_path,
+                expected_lab_state_path=repair_expected_lab_state_path,
+                notice_path=repair_notice_path,
             )
             llm_invocation = invoke_llm_repair(llm_input_payload, llm_cfg)
             llm_raw_output_payload = {
@@ -315,7 +323,7 @@ def run_benchmark(
                 llm_repair_result["llm_failure_reason"] = llm_invocation.get("failure_reason")
 
             if llm_parsed_output_payload is not None:
-                api_registry = load_api_registry()
+                api_registry = load_api_registry(path=repair_api_registry_path)
                 ok_ops, ops_error = validate_operations_before_apply(
                     operations=llm_parsed_output_payload.get("operations", []),
                     workflow=workflow_after_repair,
@@ -389,7 +397,7 @@ def run_benchmark(
                 state_snapshots=[],
             )
 
-        api_calls = grounded.api_calls
+        api_calls = workflow_final.api_calls
         api_names = [call.api for call in api_calls]
 
         parsing_matched, parsing_total, parsing_failures = _evaluate_parsed_steps(
@@ -510,12 +518,12 @@ def run_benchmark(
             dump_json(case_out / "llm_parser_parsed_output.json", llm_parser_parsed_output_payload)
         dump_json(case_out / "grounding_result.json", grounding_result)
         dump_json(case_out / "grounding_validation_result.json", grounding_validation_result)
-        if llm_grounding_input_payload is not None:
-            dump_json(case_out / "llm_grounding_input.json", llm_grounding_input_payload)
-        if llm_grounding_raw_output_payload is not None:
-            dump_json(case_out / "llm_grounding_raw_output.json", llm_grounding_raw_output_payload)
-        if llm_grounding_parsed_output_payload is not None:
-            dump_json(case_out / "llm_grounding_parsed_output.json", llm_grounding_parsed_output_payload)
+        if llm_grounder_input_payload is not None:
+            dump_json(case_out / "llm_grounder_input.json", llm_grounder_input_payload)
+        if llm_grounder_raw_output_payload is not None:
+            dump_json(case_out / "llm_grounder_raw_output.json", llm_grounder_raw_output_payload)
+        if llm_grounder_parsed_output_payload is not None:
+            dump_json(case_out / "llm_grounder_parsed_output.json", llm_grounder_parsed_output_payload)
         if llm_raw_output_payload is not None:
             dump_json(case_out / "llm_raw_output.json", llm_raw_output_payload)
         if llm_parsed_output_payload is not None:
@@ -927,3 +935,5 @@ def _write_summary_markdown(path: Path, summary: dict[str, Any]) -> None:
             f"| {case['case_id']} | {backend_mode} | {g_valid} | {has_unreg} | {g_reason} |"
         )
     path.write_text("\n".join(lines), encoding="utf-8")
+
+

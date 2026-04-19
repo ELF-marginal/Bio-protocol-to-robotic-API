@@ -1,7 +1,3 @@
-Procedure
-
-A. Sample collection
-
 
 1. Grow 150 mL of liquid culture of cyanobacteria in BG-11 medium until it reaches an OD730 of 0.8–1.0.
 
@@ -11,11 +7,6 @@ A. Sample collection
 
 4. Transfer 1 mL of sample into a 1.7 mL microfuge tube.
 
-
-B. RNA extraction
-
-
-B1. Method 1
 
 1. Vigorously vortex the sample for 5 min at maximum speed.
 

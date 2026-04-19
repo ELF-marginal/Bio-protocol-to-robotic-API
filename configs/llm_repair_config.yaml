@@ -3,8 +3,8 @@ llm_repair:
   provider: "deepseek"  # deepseek | openai
   model: "deepseek-chat"
   temperature: 0.0
-  max_retries: 3
-  timeout_sec: 30
+  max_retries: 2
+  timeout_sec: 300
   endpoint: "https://api.deepseek.com/chat/completions"
   mode: "operations"   # operations | patched_workflow
   only_when_unresolved: true
@@ -12,6 +12,10 @@ llm_repair:
   require_json_output: true
   require_api_registry_constraint: true
   allow_full_workflow_rewrite: false
+  api_registry_path: "configs/api_registry.yaml"
+  initial_lab_state_path: "configs/initial_lab_state.yaml"
+  expected_lab_state_path: "configs/initial_lab_state.yaml"
+  notice_path: "configs/llm_repair_notice.txt"
   allowed_issue_types:
     - "PreconditionViolation"
     - "OrderViolation"

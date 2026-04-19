@@ -1,11 +1,12 @@
-import os
+﻿import os
 
 from src.models.contracts import ParsedProtocol, ParsedStep
 from src.pipeline.llm_grounder import (
-    build_llm_grounding_input,
-    invoke_llm_grounding,
-    normalize_grounding_output,
-    parse_llm_grounding_output,
+    build_llm_grounder_input,
+    invoke_llm_grounder,
+    normalize_grounder_output,
+    parse_llm_grounder_output,
+    validate_grounder_output,
 )
 
 
@@ -24,14 +25,14 @@ def _parsed_protocol() -> ParsedProtocol:
     )
 
 
-def test_build_llm_grounding_input_contains_available_apis() -> None:
-    payload = build_llm_grounding_input(_parsed_protocol())
+def test_build_llm_grounder_input_contains_available_apis() -> None:
+    payload = build_llm_grounder_input(_parsed_protocol())
     assert payload["protocol_id"] == "p_ground"
     assert isinstance(payload["available_apis"], list)
     assert len(payload["available_apis"]) > 0
 
 
-def test_parse_llm_grounding_output_accepts_direct_api_calls() -> None:
+def test_parse_llm_grounder_output_accepts_direct_api_calls() -> None:
     raw = """```json
 {
   "api_calls": [
@@ -41,22 +42,48 @@ def test_parse_llm_grounding_output_accepts_direct_api_calls() -> None:
   "unregistered_apis": []
 }
 ```"""
-    parsed, err = parse_llm_grounding_output(raw)
+    parsed, err = parse_llm_grounder_output(raw)
     assert err is None
     assert parsed is not None
-    normalized = normalize_grounding_output(parsed)
+    normalized = normalize_grounder_output(parsed)
     assert normalized["workflow"]["api_calls"][0]["api"] == "pipette.transfer"
 
 
-def test_invoke_llm_grounding_missing_key() -> None:
+def test_invoke_llm_grounder_missing_key() -> None:
     previous = os.environ.pop("DEEPSEEK_API_KEY", None)
     try:
-        result = invoke_llm_grounding(
-            llm_input={"protocol_id": "p", "parsed_protocol": {}, "available_apis": [], "grounding_task_instruction": "x"},
+        result = invoke_llm_grounder(
+            llm_input={"protocol_id": "p", "parsed_protocol": {}, "available_apis": [], "grounder_task_instruction": "x"},
             config={"provider": "deepseek", "model": "deepseek-chat"},
         )
-        assert result["llm_grounding_invoked"] is True
+        assert result["llm_grounder_invoked"] is True
         assert result["failure_reason"] == "missing_deepseek_api_key"
     finally:
         if previous is not None:
             os.environ["DEEPSEEK_API_KEY"] = previous
+
+
+def test_validate_grounder_output_respects_custom_registry_path() -> None:
+    normalized = {
+        "workflow": {
+            "api_calls": [
+                {
+                    "api": "centrifuge.run",
+                    "args": {
+                        "centrifuge_id": "benchtop_centrifuge",
+                        "speed_xg": 12000,
+                        "duration_min": 10,
+                        "temperature_c": 4,
+                    },
+                }
+            ]
+        },
+        "contains_unregistered_api": False,
+        "unregistered_apis": [],
+    }
+    result = validate_grounder_output(normalized_output=normalized, api_registry_path="configs/api_real.yaml")
+    assert result["grounding_valid"] is True
+    assert result["contains_unregistered_api"] is False
+
+
+
