@@ -1,4 +1,0 @@
-{
-  "protocol_text": "Add 100 uL buffer to the sample tube.",
-  "task": "Parse the protocol text into structured steps. Return strict JSON output."
-}

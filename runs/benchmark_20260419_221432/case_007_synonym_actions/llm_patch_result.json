@@ -1,8 +1,0 @@
-{
-  "llm_invoked": false,
-  "llm_output_valid_json": false,
-  "llm_patch_applied": false,
-  "llm_patch_accepted": false,
-  "llm_repair_success": false,
-  "llm_failure_reason": "grounding_invalid_skip_llm_repair"
-}

@@ -1,4 +1,0 @@
-{
-  "protocol_text": "Retrieve the sample tube from fridge. Add 80 uL lysis buffer. Vortex it 8 times. Warm it at 37C for 12 min.",
-  "task": "Parse the protocol text into structured steps. Return strict JSON output."
-}
