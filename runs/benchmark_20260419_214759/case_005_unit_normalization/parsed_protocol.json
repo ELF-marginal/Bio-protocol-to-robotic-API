@@ -1,0 +1,16 @@
+{
+  "protocol_id": "case_005_unit_normalization",
+  "steps": [
+    {
+      "step_id": "s1",
+      "raw_text": "Add 0.1 mL buffer to the sample tube.",
+      "action": "add",
+      "entities": {
+        "target": "sample tube"
+      },
+      "parameters": {
+        "volume_ul": 100.0
+      }
+    }
+  ]
+}

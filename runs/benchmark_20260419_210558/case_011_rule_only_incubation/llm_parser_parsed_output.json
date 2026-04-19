@@ -1,0 +1,44 @@
+{
+  "decision": "accept",
+  "reasoning_summary": "The protocol text describes three clear sequential steps: retrieving a sample tube, adding a reagent, and incubating. Each step can be parsed into a structured format with an action, relevant entities (like the target container), and parameters (like volume, temperature, and duration).",
+  "parsed_protocol": {
+    "protocol_id": "parsed_protocol_1",
+    "steps": [
+      {
+        "step_id": "s1",
+        "raw_text": "Take sample tube from fridge.",
+        "action": "take",
+        "entities": {
+          "target": "sample tube",
+          "source": "fridge"
+        },
+        "parameters": {}
+      },
+      {
+        "step_id": "s2",
+        "raw_text": "Add 50 uL lysis buffer to sample tube.",
+        "action": "add",
+        "entities": {
+          "target": "sample tube"
+        },
+        "parameters": {
+          "volume_ul": 50,
+          "reagent": "lysis buffer"
+        }
+      },
+      {
+        "step_id": "s3",
+        "raw_text": "Incubate at 37C for 10 minutes.",
+        "action": "incubate",
+        "entities": {
+          "target": "sample tube"
+        },
+        "parameters": {
+          "temperature_c": 37,
+          "duration_min": 10
+        }
+      }
+    ]
+  },
+  "assumptions": []
+}

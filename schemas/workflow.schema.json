@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow",
+  "type": "object",
+  "required": ["workflow_id", "protocol_id", "api_calls"],
+  "properties": {
+    "workflow_id": { "type": "string" },
+    "protocol_id": { "type": "string" },
+    "api_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["call_id", "api", "args"],
+        "properties": {
+          "call_id": { "type": "string" },
+          "api": { "type": "string" },
+          "args": { "type": "object" },
+          "source_step_id": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

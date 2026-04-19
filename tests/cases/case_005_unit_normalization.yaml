@@ -1,0 +1,90 @@
+case_id: "case_005_unit_normalization"
+input_protocol: "Add 0.1 mL buffer to the sample tube."
+expected_actions:
+  - "fridge.open"
+  - "robot.pick"
+  - "robot.place"
+  - "fridge.close"
+  - "tube.uncap"
+  - "pipette.attach_tip"
+  - "pipette.transfer"
+  - "pipette.discard_tip"
+  - "tube.cap"
+expected_parsed_steps:
+  - action: "add"
+    source: "buffer"
+    target: "sample_tube"
+    parameters:
+      volume_ul: 100
+expected_workflow_sequence:
+  - "fridge.open"
+  - "robot.pick"
+  - "robot.place"
+  - "robot.pick"
+  - "robot.place"
+  - "fridge.close"
+  - "tube.uncap"
+  - "pipette.attach_tip"
+  - "pipette.transfer"
+  - "pipette.discard_tip"
+  - "tube.cap"
+  - "fridge.open"
+  - "robot.pick"
+  - "robot.place"
+  - "robot.pick"
+  - "robot.place"
+  - "fridge.close"
+expected_parameters:
+  - api: "robot.pick"
+    occurrence: 1
+    args:
+      item: "sample_tube"
+      from_location: "fridge"
+  - api: "robot.place"
+    occurrence: 1
+    args:
+      item: "sample_tube"
+      to_location: "bench"
+  - api: "robot.pick"
+    occurrence: 2
+    args:
+      item: "buffer"
+      from_location: "fridge"
+  - api: "robot.place"
+    occurrence: 2
+    args:
+      item: "buffer"
+      to_location: "bench"
+  - api: "pipette.transfer"
+    args:
+      source: "buffer"
+      target: "sample_tube"
+      volume_ul: 100.0
+  - api: "robot.pick"
+    occurrence: 3
+    args:
+      item: "sample_tube"
+      from_location: "bench"
+  - api: "robot.place"
+    occurrence: 3
+    args:
+      item: "sample_tube"
+      to_location: "fridge"
+  - api: "robot.pick"
+    occurrence: 4
+    args:
+      item: "buffer"
+      from_location: "bench"
+  - api: "robot.place"
+    occurrence: 4
+    args:
+      item: "buffer"
+      to_location: "fridge"
+expected_final_state:
+  tubes:
+    sample_tube:
+      is_capped: true
+      location: "fridge"
+must_not_include:
+  - "centrifuge.run"
+expected_success: true

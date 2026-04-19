@@ -1,0 +1,158 @@
+{
+  "decision": "Convert protocol steps to API calls using available_apis, ensuring lab state returns to expected.",
+  "reasoning_summary": "The protocol involves retrieving a sample tube from the fridge, adding lysis buffer, vortexing, and incubating. Available APIs can handle most steps: robot.pick/place for retrieval, pipette.transfer for adding buffer, pipette.mix for vortexing (as a substitute), and heater.set_temperature/place/timer.wait/remove for incubation. However, 'vortex' action has no direct API match; pipette.mix is used as a functional substitute but is not a true vortex, so it's considered unregistered. After completing steps, the lab state must match expected: tube capped and in fridge, fridge closed, pipette no tip, heater empty. Additional calls are added to return tube to fridge and cap it.",
+  "workflow": {
+    "api_calls": [
+      {
+        "call_id": "c1",
+        "api": "fridge.open",
+        "args": {},
+        "source_step_id": "s1"
+      },
+      {
+        "call_id": "c2",
+        "api": "robot.pick",
+        "args": {
+          "item": "sample_tube",
+          "from_location": "fridge"
+        },
+        "source_step_id": "s1"
+      },
+      {
+        "call_id": "c3",
+        "api": "fridge.close",
+        "args": {},
+        "source_step_id": "s1"
+      },
+      {
+        "call_id": "c4",
+        "api": "robot.place",
+        "args": {
+          "item": "sample_tube",
+          "to_location": "bench"
+        },
+        "source_step_id": "s1"
+      },
+      {
+        "call_id": "c5",
+        "api": "tube.uncap",
+        "args": {
+          "tube_id": "sample_tube"
+        },
+        "source_step_id": "s2"
+      },
+      {
+        "call_id": "c6",
+        "api": "pipette.attach_tip",
+        "args": {},
+        "source_step_id": "s2"
+      },
+      {
+        "call_id": "c7",
+        "api": "pipette.transfer",
+        "args": {
+          "source": "lysis_buffer",
+          "target": "sample_tube",
+          "volume_ul": 80
+        },
+        "source_step_id": "s2"
+      },
+      {
+        "call_id": "c8",
+        "api": "pipette.discard_tip",
+        "args": {},
+        "source_step_id": "s2"
+      },
+      {
+        "call_id": "c9",
+        "api": "pipette.mix",
+        "args": {
+          "container": "sample_tube",
+          "volume_ul": 100,
+          "times": 8
+        },
+        "source_step_id": "s3"
+      },
+      {
+        "call_id": "c10",
+        "api": "heater.set_temperature",
+        "args": {
+          "temperature_c": 37
+        },
+        "source_step_id": "s4"
+      },
+      {
+        "call_id": "c11",
+        "api": "heater.place",
+        "args": {
+          "item": "sample_tube"
+        },
+        "source_step_id": "s4"
+      },
+      {
+        "call_id": "c12",
+        "api": "timer.wait",
+        "args": {
+          "minutes": 12
+        },
+        "source_step_id": "s4"
+      },
+      {
+        "call_id": "c13",
+        "api": "heater.remove",
+        "args": {
+          "item": "sample_tube"
+        },
+        "source_step_id": "s4"
+      },
+      {
+        "call_id": "c14",
+        "api": "tube.cap",
+        "args": {
+          "tube_id": "sample_tube"
+        },
+        "source_step_id": null
+      },
+      {
+        "call_id": "c15",
+        "api": "fridge.open",
+        "args": {},
+        "source_step_id": null
+      },
+      {
+        "call_id": "c16",
+        "api": "robot.pick",
+        "args": {
+          "item": "sample_tube",
+          "from_location": "bench"
+        },
+        "source_step_id": null
+      },
+      {
+        "call_id": "c17",
+        "api": "robot.place",
+        "args": {
+          "item": "sample_tube",
+          "to_location": "fridge"
+        },
+        "source_step_id": null
+      },
+      {
+        "call_id": "c18",
+        "api": "fridge.close",
+        "args": {},
+        "source_step_id": null
+      }
+    ]
+  },
+  "contains_unregistered_api": true,
+  "unregistered_apis": [
+    "vortex"
+  ],
+  "assumptions": [
+    "pipette.mix is used as a substitute for vortexing, but it's not a direct match, so 'vortex' is considered unregistered.",
+    "Sample tube is initially in fridge and must be returned there capped.",
+    "Lysis buffer is in fridge and volume decreases by 80 µL after transfer.",
+    "Heater temperature is set to 37°C for incubation."
+  ]
+}

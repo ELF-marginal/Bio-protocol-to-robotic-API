@@ -1,0 +1,6 @@
+{
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "raw_output": "{\n  \"decision\": \"accept\",\n  \"reasoning_summary\": \"The protocol text describes a single centrifugation step with clear parameters for speed and duration.\",\n  \"parsed_protocol\": {\n    \"protocol_id\": \"parsed_1\",\n    \"steps\": [\n      {\n        \"step_id\": \"s1\",\n        \"raw_text\": \"Centrifuge the sample at 12000 g for 5 min.\",\n        \"action\": \"centrifuge\",\n        \"entities\": {\n          \"target\": \"sample\"\n        },\n        \"parameters\": {\n          \"speed_g\": 12000,\n          \"duration_min\": 5\n        }\n      }\n    ]\n  },\n  \"assumptions\": []\n}",
+  "failure_reason": null
+}

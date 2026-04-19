@@ -1,0 +1,4 @@
+{
+  "protocol_text": "Centrifuge the sample at 12000 g for 5 min.",
+  "task": "Parse the protocol text into structured steps. Return strict JSON output."
+}

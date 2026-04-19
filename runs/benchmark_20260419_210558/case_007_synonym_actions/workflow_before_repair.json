@@ -1,0 +1,128 @@
+{
+  "workflow_id": "wf_case_007_synonym_actions",
+  "protocol_id": "case_007_synonym_actions",
+  "api_calls": [
+    {
+      "call_id": "c1",
+      "api": "fridge.open",
+      "args": {},
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c2",
+      "api": "robot.pick",
+      "args": {
+        "item": "sample_tube",
+        "from_location": "fridge"
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c3",
+      "api": "fridge.close",
+      "args": {},
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c4",
+      "api": "tube.uncap",
+      "args": {
+        "tube_id": "sample_tube"
+      },
+      "source_step_id": "s2"
+    },
+    {
+      "call_id": "c5",
+      "api": "pipette.attach_tip",
+      "args": {},
+      "source_step_id": "s2"
+    },
+    {
+      "call_id": "c6",
+      "api": "pipette.transfer",
+      "args": {
+        "source": "lysis_buffer",
+        "target": "sample_tube",
+        "volume_ul": 80
+      },
+      "source_step_id": "s2"
+    },
+    {
+      "call_id": "c7",
+      "api": "pipette.discard_tip",
+      "args": {},
+      "source_step_id": "s2"
+    },
+    {
+      "call_id": "c8",
+      "api": "pipette.mix",
+      "args": {
+        "container": "sample_tube",
+        "volume_ul": 100,
+        "times": 8
+      },
+      "source_step_id": "s3"
+    },
+    {
+      "call_id": "c9",
+      "api": "heater.set_temperature",
+      "args": {
+        "temperature_c": 37
+      },
+      "source_step_id": "s4"
+    },
+    {
+      "call_id": "c10",
+      "api": "heater.place",
+      "args": {
+        "item": "sample_tube"
+      },
+      "source_step_id": "s4"
+    },
+    {
+      "call_id": "c11",
+      "api": "timer.wait",
+      "args": {
+        "minutes": 12
+      },
+      "source_step_id": "s4"
+    },
+    {
+      "call_id": "c12",
+      "api": "heater.remove",
+      "args": {
+        "item": "sample_tube"
+      },
+      "source_step_id": "s4"
+    },
+    {
+      "call_id": "c13",
+      "api": "tube.cap",
+      "args": {
+        "tube_id": "sample_tube"
+      },
+      "source_step_id": "s4"
+    },
+    {
+      "call_id": "c14",
+      "api": "fridge.open",
+      "args": {},
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c15",
+      "api": "robot.place",
+      "args": {
+        "item": "sample_tube",
+        "to_location": "fridge"
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c16",
+      "api": "fridge.close",
+      "args": {},
+      "source_step_id": "s1"
+    }
+  ]
+}

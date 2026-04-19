@@ -1,0 +1,187 @@
+{
+  "records": [
+    {
+      "case_id": "case_001_simple_transfer",
+      "repaired": false,
+      "validation_before_issue_count": 0,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_002_incubation",
+      "repaired": false,
+      "validation_before_issue_count": 0,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_003_complex_combo",
+      "repaired": false,
+      "validation_before_issue_count": 0,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_004_ignore_unsupported_centrifuge",
+      "repaired": false,
+      "validation_before_issue_count": 1,
+      "validation_after_issue_count": 1,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [
+        {
+          "issue_type": "GroundingError",
+          "message": "unregistered_api_detected"
+        }
+      ],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "grounding_invalid_skip_llm_repair",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_005_unit_normalization",
+      "repaired": false,
+      "validation_before_issue_count": 0,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_006_complex_single_sentence",
+      "repaired": true,
+      "validation_before_issue_count": 1,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [
+        {
+          "insert_before_call_id": "c12",
+          "insert_api": "heater.set_temperature",
+          "insert_args": {
+            "temperature_c": 37
+          },
+          "reason": "heater.place called before heater.set_temperature."
+        }
+      ],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_007_synonym_actions",
+      "repaired": false,
+      "validation_before_issue_count": 1,
+      "validation_after_issue_count": 1,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [
+        {
+          "issue_type": "GroundingError",
+          "message": "unregistered_api_detected"
+        }
+      ],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "grounding_invalid_skip_llm_repair",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_008_implicit_target",
+      "repaired": false,
+      "validation_before_issue_count": 0,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_009_unsupported_plus_valid",
+      "repaired": false,
+      "validation_before_issue_count": 1,
+      "validation_after_issue_count": 1,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [
+        {
+          "issue_type": "GroundingError",
+          "message": "unregistered_api_detected"
+        }
+      ],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "grounding_invalid_skip_llm_repair",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_010_rule_only_simple",
+      "repaired": false,
+      "validation_before_issue_count": 0,
+      "validation_after_issue_count": 0,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "llm_repair_flag_disabled",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    },
+    {
+      "case_id": "case_011_rule_only_incubation",
+      "repaired": false,
+      "validation_before_issue_count": 1,
+      "validation_after_issue_count": 1,
+      "applied_repairs": [],
+      "remaining_issues_after_repair": [
+        {
+          "issue_type": "GroundingError",
+          "message": "unregistered_api_detected"
+        }
+      ],
+      "llm_invoked": false,
+      "llm_patch_accepted": false,
+      "llm_failure_reason": "grounding_invalid_skip_llm_repair",
+      "parser_backend_mode": "llm_primary",
+      "parser_fallback_used": false,
+      "parser_failure_reason": null
+    }
+  ]
+}

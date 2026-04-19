@@ -1,0 +1,437 @@
+{
+  "workflow_id": "wf_case_008_implicit_target",
+  "success": false,
+  "executed_calls": 7,
+  "events": [
+    {
+      "timestamp": "2026-04-19T14:20:16.550000Z",
+      "call_id": "c1",
+      "api": "fridge.open",
+      "args": {},
+      "success": true,
+      "message": "ok"
+    },
+    {
+      "timestamp": "2026-04-19T14:20:16.550037Z",
+      "call_id": "c2",
+      "api": "robot.pick",
+      "args": {
+        "item": "sample_tube",
+        "from_location": "fridge"
+      },
+      "success": true,
+      "message": "ok"
+    },
+    {
+      "timestamp": "2026-04-19T14:20:16.550054Z",
+      "call_id": "c3",
+      "api": "fridge.close",
+      "args": {},
+      "success": true,
+      "message": "ok"
+    },
+    {
+      "timestamp": "2026-04-19T14:20:16.550071Z",
+      "call_id": "c4",
+      "api": "robot.place",
+      "args": {
+        "item": "sample_tube",
+        "to_location": "bench"
+      },
+      "success": true,
+      "message": "ok"
+    },
+    {
+      "timestamp": "2026-04-19T14:20:16.550087Z",
+      "call_id": "c5",
+      "api": "tube.uncap",
+      "args": {
+        "tube_id": "sample_tube"
+      },
+      "success": true,
+      "message": "ok"
+    },
+    {
+      "timestamp": "2026-04-19T14:20:16.550104Z",
+      "call_id": "c6",
+      "api": "pipette.attach_tip",
+      "args": {},
+      "success": true,
+      "message": "ok"
+    },
+    {
+      "timestamp": "2026-04-19T14:20:16.550119Z",
+      "call_id": "c7",
+      "api": "pipette.attach_tip",
+      "args": {},
+      "success": false,
+      "message": "PreconditionViolation: pipette already has tip."
+    }
+  ],
+  "final_state": {
+    "fridge": {
+      "is_open": false,
+      "items": [
+        "buffer",
+        "lysis_buffer"
+      ]
+    },
+    "bench": {
+      "items": [
+        "sample_tube"
+      ]
+    },
+    "tubes": {
+      "sample_tube": {
+        "is_capped": false,
+        "location": "bench",
+        "contents": [
+          "sample"
+        ]
+      }
+    },
+    "reagents": {
+      "buffer": {
+        "location": "fridge",
+        "volume_ul": 10000
+      },
+      "lysis_buffer": {
+        "location": "fridge",
+        "volume_ul": 10000
+      }
+    },
+    "pipette": {
+      "has_tip": true
+    },
+    "heater": {
+      "temperature_c": null,
+      "items": []
+    },
+    "robot": {
+      "holding": null
+    }
+  },
+  "state_snapshots": [
+    {
+      "after_call_id": "c1",
+      "api": "fridge.open",
+      "state": {
+        "fridge": {
+          "is_open": true,
+          "items": [
+            "sample_tube",
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": []
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": true,
+            "location": "fridge",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": false
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        }
+      }
+    },
+    {
+      "after_call_id": "c2",
+      "api": "robot.pick",
+      "state": {
+        "fridge": {
+          "is_open": true,
+          "items": [
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": []
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": true,
+            "location": "robot_hand",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": false
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        },
+        "robot": {
+          "holding": "sample_tube"
+        }
+      }
+    },
+    {
+      "after_call_id": "c3",
+      "api": "fridge.close",
+      "state": {
+        "fridge": {
+          "is_open": false,
+          "items": [
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": []
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": true,
+            "location": "robot_hand",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": false
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        },
+        "robot": {
+          "holding": "sample_tube"
+        }
+      }
+    },
+    {
+      "after_call_id": "c4",
+      "api": "robot.place",
+      "state": {
+        "fridge": {
+          "is_open": false,
+          "items": [
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": [
+            "sample_tube"
+          ]
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": true,
+            "location": "bench",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": false
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        },
+        "robot": {
+          "holding": null
+        }
+      }
+    },
+    {
+      "after_call_id": "c5",
+      "api": "tube.uncap",
+      "state": {
+        "fridge": {
+          "is_open": false,
+          "items": [
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": [
+            "sample_tube"
+          ]
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": false,
+            "location": "bench",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": false
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        },
+        "robot": {
+          "holding": null
+        }
+      }
+    },
+    {
+      "after_call_id": "c6",
+      "api": "pipette.attach_tip",
+      "state": {
+        "fridge": {
+          "is_open": false,
+          "items": [
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": [
+            "sample_tube"
+          ]
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": false,
+            "location": "bench",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": true
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        },
+        "robot": {
+          "holding": null
+        }
+      }
+    },
+    {
+      "after_call_id": "c7",
+      "api": "pipette.attach_tip",
+      "state": {
+        "fridge": {
+          "is_open": false,
+          "items": [
+            "buffer",
+            "lysis_buffer"
+          ]
+        },
+        "bench": {
+          "items": [
+            "sample_tube"
+          ]
+        },
+        "tubes": {
+          "sample_tube": {
+            "is_capped": false,
+            "location": "bench",
+            "contents": [
+              "sample"
+            ]
+          }
+        },
+        "reagents": {
+          "buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          },
+          "lysis_buffer": {
+            "location": "fridge",
+            "volume_ul": 10000
+          }
+        },
+        "pipette": {
+          "has_tip": true
+        },
+        "heater": {
+          "temperature_c": null,
+          "items": []
+        },
+        "robot": {
+          "holding": null
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "grounding_backend_mode": "llm_primary",
+  "llm_grounding_invoked": true,
+  "llm_grounding_valid_json": true,
+  "llm_grounding_schema_valid": true,
+  "llm_grounding_accepted": true,
+  "llm_grounding_fallback_used": false,
+  "grounding_valid": false,
+  "contains_unregistered_api": true,
+  "unregistered_apis": [
+    "vortex"
+  ],
+  "model_contains_unregistered_api": true,
+  "model_unregistered_apis": [
+    "vortex"
+  ],
+  "scanner_contains_unregistered_api": false,
+  "scanner_unregistered_apis": [],
+  "model_scanner_consistent": false,
+  "grounding_failure_reason": "unregistered_api_detected",
+  "grounding_issues": [
+    "contains_unregistered_api_mismatch_with_scanner",
+    "unregistered_apis_mismatch_with_scanner"
+  ]
+}

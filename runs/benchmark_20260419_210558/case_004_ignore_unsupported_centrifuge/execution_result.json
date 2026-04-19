@@ -1,0 +1,8 @@
+{
+  "workflow_id": "wf_case_004_ignore_unsupported_centrifuge",
+  "success": false,
+  "executed_calls": 0,
+  "events": [],
+  "final_state": {},
+  "state_snapshots": []
+}

@@ -1,0 +1,9 @@
+{
+  "parser_backend_mode": "llm_primary",
+  "llm_parser_invoked": true,
+  "llm_parser_valid_json": true,
+  "llm_parser_schema_valid": true,
+  "llm_parser_accepted": true,
+  "llm_parser_fallback_used": false,
+  "llm_parser_failure_reason": null
+}

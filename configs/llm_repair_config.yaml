@@ -1,0 +1,18 @@
+llm_repair:
+  enabled: true
+  provider: "deepseek"  # deepseek | openai
+  model: "deepseek-chat"
+  temperature: 0.0
+  max_retries: 3
+  timeout_sec: 30
+  endpoint: "https://api.deepseek.com/chat/completions"
+  mode: "operations"   # operations | patched_workflow
+  only_when_unresolved: true
+  save_debug_files: true
+  require_json_output: true
+  require_api_registry_constraint: true
+  allow_full_workflow_rewrite: false
+  allowed_issue_types:
+    - "PreconditionViolation"
+    - "OrderViolation"
+    - "MissingParameter"

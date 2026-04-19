@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLMParserInput",
+  "type": "object",
+  "required": [
+    "protocol_text",
+    "task"
+  ],
+  "properties": {
+    "protocol_text": { "type": "string" },
+    "task": { "type": "string" }
+  }
+}

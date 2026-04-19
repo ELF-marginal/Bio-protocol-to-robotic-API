@@ -1,0 +1,4 @@
+{
+  "protocol_text": "Incubate at 37C for 10 minutes.",
+  "task": "Parse the protocol text into structured steps. Return strict JSON output."
+}

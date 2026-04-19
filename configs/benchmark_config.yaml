@@ -1,0 +1,11 @@
+benchmark:
+  cases_dir: "tests/cases"
+  output_root: "runs"
+  metrics:
+    - "parsing_accuracy"
+    - "grounding_accuracy"
+    - "parameter_accuracy"
+    - "sequence_accuracy"
+    - "executability_rate"
+    - "pass_rate"
+    - "precondition_violation_count"

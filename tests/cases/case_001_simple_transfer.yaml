@@ -1,0 +1,64 @@
+case_id: "case_001_simple_transfer"
+input_protocol: "Add 100 uL buffer to the sample tube."
+expected_actions:
+  - "fridge.open"
+  - "robot.pick"
+  - "tube.uncap"
+  - "pipette.attach_tip"
+  - "pipette.transfer"
+  - "pipette.discard_tip"
+  - "tube.cap"
+  - "robot.place"
+  - "fridge.close"
+expected_parsed_steps:
+  - action: "add"
+    source: "buffer"
+    target: "sample_tube"
+    parameters:
+      volume_ul: 100
+expected_workflow_sequence:
+  - "fridge.open"
+  - "robot.pick"
+  - "robot.pick"
+  - "tube.uncap"
+  - "pipette.attach_tip"
+  - "pipette.transfer"
+  - "pipette.discard_tip"
+  - "tube.cap"
+  - "robot.place"
+  - "robot.place"
+  - "fridge.close"
+expected_parameters:
+  - api: "robot.pick"
+    occurrence: 1
+    args:
+      item: "sample_tube"
+      from_location: "fridge"
+  - api: "robot.pick"
+    occurrence: 2
+    args:
+      item: "buffer"
+      from_location: "fridge"
+  - api: "pipette.transfer"
+    args:
+      source: "buffer"
+      target: "sample_tube"
+      volume_ul: 100
+  - api: "robot.place"
+    occurrence: 1
+    args:
+      item: "sample_tube"
+      to_location: "fridge"
+  - api: "robot.place"
+    occurrence: 2
+    args:
+      item: "buffer"
+      to_location: "fridge"
+expected_final_state:
+  tubes:
+    sample_tube:
+      is_capped: true
+      location: "fridge"
+must_not_include:
+  - "centrifuge.run"
+expected_success: true

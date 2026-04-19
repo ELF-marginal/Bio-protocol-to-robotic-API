@@ -1,0 +1,8 @@
+validator:
+  enable_rule_validator: true
+  api_registry_path: "configs/api_registry.yaml"
+  fail_on_error: true
+
+repair:
+  enable: true
+  max_attempts: 1

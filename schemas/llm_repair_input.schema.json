@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLMRepairInput",
+  "type": "object",
+  "required": [
+    "protocol_text",
+    "parsed_steps",
+    "workflow_before_llm_repair",
+    "validation_issues_before_llm",
+    "applied_rule_repairs",
+    "remaining_issues_after_rule_repair",
+    "available_apis",
+    "lab_state_summary",
+    "task"
+  ],
+  "properties": {
+    "protocol_text": { "type": "string" },
+    "parsed_steps": { "type": "array" },
+    "workflow_before_llm_repair": { "type": "array" },
+    "validation_issues_before_llm": { "type": "array" },
+    "applied_rule_repairs": { "type": "array" },
+    "remaining_issues_after_rule_repair": { "type": "array" },
+    "available_apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "required_args", "arg_types"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "required_args": { "type": "array", "items": { "type": "string" } },
+          "arg_types": { "type": "object" }
+        }
+      }
+    },
+    "lab_state_summary": { "type": "object" },
+    "task": { "type": "string" }
+  }
+}

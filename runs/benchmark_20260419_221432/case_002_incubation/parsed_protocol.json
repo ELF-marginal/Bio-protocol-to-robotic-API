@@ -1,0 +1,15 @@
+{
+  "protocol_id": "case_002_incubation",
+  "steps": [
+    {
+      "step_id": "s1",
+      "raw_text": "Incubate at 37C for 10 minutes.",
+      "action": "incubate",
+      "entities": {},
+      "parameters": {
+        "temperature_c": 37,
+        "duration_min": 10
+      }
+    }
+  ]
+}

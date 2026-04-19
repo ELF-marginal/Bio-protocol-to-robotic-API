@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParsedProtocol",
+  "type": "object",
+  "required": ["protocol_id", "steps"],
+  "properties": {
+    "protocol_id": { "type": "string" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_id", "raw_text", "action", "entities", "parameters"],
+        "properties": {
+          "step_id": { "type": "string" },
+          "raw_text": { "type": "string" },
+          "action": { "type": "string" },
+          "entities": { "type": "object" },
+          "parameters": { "type": "object" }
+        }
+      }
+    }
+  }
+}

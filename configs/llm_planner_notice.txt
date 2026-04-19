@@ -1,0 +1,2 @@
+# Write extra planner notices here.
+# Future LLM planner module should append this text to LLM input field `notice` verbatim.

@@ -1,0 +1,6 @@
+{
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "raw_output": "{\n  \"decision\": \"accept\",\n  \"reasoning_summary\": \"The protocol text describes a single incubation step with temperature and duration parameters.\",\n  \"parsed_protocol\": {\n    \"protocol_id\": \"parsed_protocol_1\",\n    \"steps\": [\n      {\n        \"step_id\": \"s1\",\n        \"raw_text\": \"Incubate at 37C for 10 minutes.\",\n        \"action\": \"incubate\",\n        \"entities\": {},\n        \"parameters\": {\n          \"temperature_c\": 37,\n          \"duration_min\": 10\n        }\n      }\n    ]\n  },\n  \"assumptions\": []\n}",
+  "failure_reason": null
+}

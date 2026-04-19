@@ -1,0 +1,46 @@
+Procedure
+
+A. Sample collection
+
+
+1. Grow 150 mL of liquid culture of cyanobacteria in BG-11 medium until it reaches an OD730 of 0.8–1.0.
+
+2. Harvest the cells by spinning them in a Beckman centrifuge at 5,000× g for 10 min at room temperature.
+
+3. Discard the supernatant and resuspend the pellet in 5 mL of BG-11 medium.
+
+4. Transfer 1 mL of sample into a 1.7 mL microfuge tube.
+
+
+B. RNA extraction
+
+
+B1. Method 1
+
+1. Vigorously vortex the sample for 5 min at maximum speed.
+
+2. Add 300–400 μL of lysis buffer to the cell suspension and gently mix by pipetting up and down 5 times using a 1,000 μL pipette.
+
+3. Add 150 μL of precipitation buffer to the cell lysate and mix by inversion (10 times).
+
+4. Incubate cell lysate on ice for 5–7 min.
+
+5. After incubation, centrifuge the sample at 15,000× g for 3 min on a small benchtop centrifuge to pellet the unbroken cells and membranes.
+
+6. Transfer the supernatant to a new microfuge tube without disturbing the pellet, then centrifuge at 16,000× g for 4 min to remove any remnants.
+
+7. After centrifugation, transfer the supernatant to another clean microfuge tube and mix with 100% isopropanol in a 1:1 ratio.
+
+8. Incubate the sample for 7 min on ice, followed by 10 min at room temperature.
+
+9. Following incubation, centrifuge the sample mixture at 15,000× g for 5 min using a small benchtop centrifuge.
+
+10. Discard supernatant and wash the pellet with 400 μL of cold 70% ethanol. Centrifuge again at 15,000× g for 5 min.
+
+11. Remove the ethanol carefully without disturbing the RNA pellet.
+
+12. Air dry the pellets by inverting the tubes on a clean paper towel with the lid open for 10–15 min.
+
+13. Gently resuspend the dried pellet in 40 μL of DEPC-treated Milli-Q water and centrifuge at 16,000× g for 5 min to remove impurities and remnants. Impurities and remnants go to the pellet.
+
+14. Transfer the RNA-containing supernatant to a clean microfuge tube and store it at -80 °C for later analysis.

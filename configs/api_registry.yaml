@@ -1,0 +1,45 @@
+apis:
+  - name: fridge.open
+    parameters: {}
+  - name: fridge.close
+    parameters: {}
+  - name: robot.pick
+    parameters:
+      item: string
+      from_location: string
+  - name: robot.place
+    parameters:
+      item: string
+      to_location: string
+  - name: tube.uncap
+    parameters:
+      tube_id: string
+  - name: tube.cap
+    parameters:
+      tube_id: string
+  - name: pipette.attach_tip
+    parameters: {}
+  - name: pipette.transfer
+    parameters:
+      source: string
+      target: string
+      volume_ul: number
+  - name: pipette.mix
+    parameters:
+      container: string
+      volume_ul: number
+      times: number
+  - name: pipette.discard_tip
+    parameters: {}
+  - name: heater.set_temperature
+    parameters:
+      temperature_c: number
+  - name: heater.place
+    parameters:
+      item: string
+  - name: timer.wait
+    parameters:
+      minutes: number
+  - name: heater.remove
+    parameters:
+      item: string

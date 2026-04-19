@@ -1,0 +1,11 @@
+llm_parser:
+  enabled: false
+  provider: "deepseek"
+  model: "deepseek-chat"
+  temperature: 0.0
+  max_retries: 3
+  timeout_seconds: 60
+  endpoint: "https://api.deepseek.com/chat/completions"
+  save_debug_files: true
+  require_json_output: true
+  require_schema_validation: true

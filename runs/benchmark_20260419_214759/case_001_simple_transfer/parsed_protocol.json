@@ -1,0 +1,16 @@
+{
+  "protocol_id": "case_001_simple_transfer",
+  "steps": [
+    {
+      "step_id": "s1",
+      "raw_text": "Add 100 uL buffer to the sample tube.",
+      "action": "add",
+      "entities": {
+        "target": "sample tube"
+      },
+      "parameters": {
+        "volume_ul": 100
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+case_id: case_007_synonym_actions
+input_protocol: "Retrieve the sample tube from fridge. Add 80 uL lysis buffer. Vortex it 8 times. Warm it at 37C for 12 min."
+expected_success: true
+expected_llm_parser_invoked: true
+expected_workflow_sequence:
+  - fridge.open
+  - fridge.take_out
+  - fridge.close
+  - tube.uncap
+  - pipette.attach_tip
+  - pipette.transfer
+  - pipette.mix
+  - heater.set_temperature
+  - heater.incubate
+expected_parameters:
+  - api: pipette.transfer
+    args: { volume_ul: 80, source: lysis_buffer, target: sample_tube }
+  - api: pipette.mix
+    args: { container: sample_tube, times: 8 }
+  - api: heater.set_temperature
+    args: { temperature_c: 37 }
+  - api: heater.incubate
+    args: { duration_min: 12 }

@@ -1,0 +1,46 @@
+case_id: "case_002_incubation"
+input_protocol: "Incubate at 37C for 10 minutes."
+expected_actions:
+  - "robot.pick"
+  - "heater.place"
+  - "heater.set_temperature"
+  - "timer.wait"
+  - "heater.remove"
+  - "robot.place"
+expected_parsed_steps:
+  - action: "incubate"
+    target: "sample_tube"
+    parameters:
+      temperature_c: 37
+      duration_min: 10
+expected_workflow_sequence:
+  - "robot.pick"
+  - "heater.place"
+  - "heater.set_temperature"
+  - "timer.wait"
+  - "heater.remove"
+  - "robot.place"
+expected_parameters:
+  - api: "robot.pick"
+    args:
+      item: "sample_tube"
+      from_location: "fridge"
+  - api: "heater.set_temperature"
+    args:
+      temperature_c: 37
+  - api: "timer.wait"
+    args:
+      minutes: 10
+  - api: "robot.place"
+    args:
+      item: "sample_tube"
+      to_location: "fridge"
+expected_final_state:
+  heater:
+    items: []
+  tubes:
+    sample_tube:
+      location: "fridge"
+must_not_include:
+  - "pipette.transfer"
+expected_success: true

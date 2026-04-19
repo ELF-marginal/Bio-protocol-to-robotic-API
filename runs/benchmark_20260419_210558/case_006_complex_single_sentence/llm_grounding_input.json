@@ -1,0 +1,206 @@
+{
+  "protocol_id": "case_006_complex_single_sentence",
+  "parsed_protocol": {
+    "protocol_id": "case_006_complex_single_sentence",
+    "steps": [
+      {
+        "step_id": "s1",
+        "raw_text": "Take the sample tube from the fridge",
+        "action": "retrieve",
+        "entities": {
+          "target": "sample tube",
+          "source": "fridge"
+        },
+        "parameters": {}
+      },
+      {
+        "step_id": "s2",
+        "raw_text": "add 100 uL buffer and mix 5 times",
+        "action": "add_and_mix",
+        "entities": {
+          "target": "sample tube"
+        },
+        "parameters": {
+          "volume_ul": 100,
+          "mix_cycles": 5
+        }
+      },
+      {
+        "step_id": "s3",
+        "raw_text": "incubate at 37C for 10 minutes",
+        "action": "incubate",
+        "entities": {
+          "target": "sample tube"
+        },
+        "parameters": {
+          "temperature_c": 37,
+          "duration_min": 10
+        }
+      }
+    ]
+  },
+  "available_apis": [
+    {
+      "name": "fridge.open",
+      "parameters": {}
+    },
+    {
+      "name": "fridge.close",
+      "parameters": {}
+    },
+    {
+      "name": "robot.pick",
+      "parameters": {
+        "item": "string",
+        "from_location": "string"
+      }
+    },
+    {
+      "name": "robot.place",
+      "parameters": {
+        "item": "string",
+        "to_location": "string"
+      }
+    },
+    {
+      "name": "tube.uncap",
+      "parameters": {
+        "tube_id": "string"
+      }
+    },
+    {
+      "name": "tube.cap",
+      "parameters": {
+        "tube_id": "string"
+      }
+    },
+    {
+      "name": "pipette.attach_tip",
+      "parameters": {}
+    },
+    {
+      "name": "pipette.transfer",
+      "parameters": {
+        "source": "string",
+        "target": "string",
+        "volume_ul": "number"
+      }
+    },
+    {
+      "name": "pipette.mix",
+      "parameters": {
+        "container": "string",
+        "volume_ul": "number",
+        "times": "number"
+      }
+    },
+    {
+      "name": "pipette.discard_tip",
+      "parameters": {}
+    },
+    {
+      "name": "heater.set_temperature",
+      "parameters": {
+        "temperature_c": "number"
+      }
+    },
+    {
+      "name": "heater.place",
+      "parameters": {
+        "item": "string"
+      }
+    },
+    {
+      "name": "timer.wait",
+      "parameters": {
+        "minutes": "number"
+      }
+    },
+    {
+      "name": "heater.remove",
+      "parameters": {
+        "item": "string"
+      }
+    }
+  ],
+  "lab_state_initial": {
+    "fridge": {
+      "is_open": false,
+      "items": [
+        "sample_tube",
+        "buffer",
+        "lysis_buffer"
+      ]
+    },
+    "bench": {
+      "items": []
+    },
+    "tubes": {
+      "sample_tube": {
+        "is_capped": true,
+        "location": "fridge",
+        "contents": [
+          "sample"
+        ]
+      }
+    },
+    "reagents": {
+      "buffer": {
+        "location": "fridge",
+        "volume_ul": 10000
+      },
+      "lysis_buffer": {
+        "location": "fridge",
+        "volume_ul": 10000
+      }
+    },
+    "pipette": {
+      "has_tip": false
+    },
+    "heater": {
+      "temperature_c": null,
+      "items": []
+    }
+  },
+  "lab_state_expected": {
+    "fridge": {
+      "is_open": false,
+      "items": [
+        "sample_tube",
+        "buffer",
+        "lysis_buffer"
+      ]
+    },
+    "bench": {
+      "items": []
+    },
+    "tubes": {
+      "sample_tube": {
+        "is_capped": true,
+        "location": "fridge",
+        "contents": [
+          "sample"
+        ]
+      }
+    },
+    "reagents": {
+      "buffer": {
+        "location": "fridge",
+        "volume_ul": 10000
+      },
+      "lysis_buffer": {
+        "location": "fridge",
+        "volume_ul": 10000
+      }
+    },
+    "pipette": {
+      "has_tip": false
+    },
+    "heater": {
+      "temperature_c": null,
+      "items": []
+    }
+  },
+  "grounding_task_instruction": "Convert parsed protocol steps to API workflow calls. Prefer registered APIs. Respect initial/expected lab-state constraints when planning calls. If any API in workflow is not in available_apis, you must set contains_unregistered_api=true and include each distinct unknown API name in unregistered_apis. If all APIs are registered, you must set contains_unregistered_api=false and unregistered_apis=[].",
+  "notice": "# Write extra grounding notices here.\n# Content in this file will be passed to LLM grounding input as `notice` verbatim.\nIf the state of the lab after you complete the experiment is not the expected state, please call the appropriate API again to change the lab state.\nThe \"expected laboratory state\" is, in essence, the state to which one hopes to restore the laboratory upon the completion of an experiment."
+}

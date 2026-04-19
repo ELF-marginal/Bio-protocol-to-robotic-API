@@ -1,0 +1,56 @@
+{
+  "workflow_id": "wf_case_002_incubation",
+  "protocol_id": "case_002_incubation",
+  "api_calls": [
+    {
+      "call_id": "c1",
+      "api": "robot.pick",
+      "args": {
+        "item": "sample_tube",
+        "from_location": "fridge"
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c2",
+      "api": "heater.set_temperature",
+      "args": {
+        "temperature_c": 37
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c3",
+      "api": "heater.place",
+      "args": {
+        "item": "sample_tube"
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c4",
+      "api": "timer.wait",
+      "args": {
+        "minutes": 10
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c5",
+      "api": "heater.remove",
+      "args": {
+        "item": "sample_tube"
+      },
+      "source_step_id": "s1"
+    },
+    {
+      "call_id": "c6",
+      "api": "robot.place",
+      "args": {
+        "item": "sample_tube",
+        "to_location": "fridge"
+      },
+      "source_step_id": "s1"
+    }
+  ]
+}

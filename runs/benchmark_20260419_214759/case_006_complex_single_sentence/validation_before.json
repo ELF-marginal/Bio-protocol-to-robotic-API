@@ -1,0 +1,14 @@
+{
+  "valid": false,
+  "issue_count": 1,
+  "issues": [
+    {
+      "issue_type": "PreconditionViolation",
+      "severity": "error",
+      "call_id": "c12",
+      "api": "heater.place",
+      "message": "heater.place called before heater.set_temperature.",
+      "suggestion": "Insert heater.set_temperature before this call."
+    }
+  ]
+}

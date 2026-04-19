@@ -1,0 +1,31 @@
+fridge:
+  is_open: false
+  items:
+    - sample_tube
+    - buffer
+    - lysis_buffer
+
+bench:
+  items: []
+
+tubes:
+  sample_tube:
+    is_capped: true
+    location: fridge
+    contents:
+      - sample
+
+reagents:
+  buffer:
+    location: fridge
+    volume_ul: 10000
+  lysis_buffer:
+    location: fridge
+    volume_ul: 10000
+
+pipette:
+  has_tip: false
+
+heater:
+  temperature_c: null
+  items: []

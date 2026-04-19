@@ -1,0 +1,7 @@
+{
+  "llm_invoked": false,
+  "llm_output_valid_json": false,
+  "llm_patch_applied": false,
+  "llm_patch_accepted": false,
+  "llm_failure_reason": "llm_repair_flag_disabled"
+}

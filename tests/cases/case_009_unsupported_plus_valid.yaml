@@ -1,0 +1,22 @@
+case_id: case_009_unsupported_plus_valid
+input_protocol: "Take sample tube from fridge. Briefly centrifuge it, then add 100 uL buffer and incubate at 37C for 10 min."
+expected_success: true
+expected_llm_parser_invoked: true
+must_not_include:
+  - centrifuge.spin
+expected_workflow_sequence:
+  - fridge.open
+  - fridge.take_out
+  - fridge.close
+  - tube.uncap
+  - pipette.attach_tip
+  - pipette.transfer
+  - heater.set_temperature
+  - heater.incubate
+expected_parameters:
+  - api: pipette.transfer
+    args: { volume_ul: 100, source: buffer, target: sample_tube }
+  - api: heater.set_temperature
+    args: { temperature_c: 37 }
+  - api: heater.incubate
+    args: { duration_min: 10 }

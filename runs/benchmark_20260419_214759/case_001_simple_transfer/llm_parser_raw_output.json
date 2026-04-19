@@ -1,0 +1,6 @@
+{
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "raw_output": "{\n  \"decision\": \"accept\",\n  \"reasoning_summary\": \"The protocol text describes a single, clear step involving adding a specified volume of buffer to a sample tube. It can be parsed into a structured step with action 'add', entities for the target (sample tube), and parameters for volume.\",\n  \"parsed_protocol\": {\n    \"protocol_id\": \"parsed_protocol_1\",\n    \"steps\": [\n      {\n        \"step_id\": \"s1\",\n        \"raw_text\": \"Add 100 uL buffer to the sample tube.\",\n        \"action\": \"add\",\n        \"entities\": {\n          \"target\": \"sample tube\"\n        },\n        \"parameters\": {\n          \"volume_ul\": 100\n        }\n      }\n    ]\n  },\n  \"assumptions\": []\n}",
+  "failure_reason": null
+}

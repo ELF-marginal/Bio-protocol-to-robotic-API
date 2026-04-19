@@ -1,0 +1,39 @@
+{
+  "protocol_id": "case_009_unsupported_plus_valid",
+  "steps": [
+    {
+      "step_id": "s1",
+      "raw_text": "Take sample tube from fridge.",
+      "action": "take",
+      "entities": {
+        "target": "sample tube",
+        "source": "fridge"
+      },
+      "parameters": {}
+    },
+    {
+      "step_id": "s2",
+      "raw_text": "Briefly centrifuge it,",
+      "action": "centrifuge",
+      "entities": {
+        "target": "sample tube"
+      },
+      "parameters": {
+        "duration_min": "brief"
+      }
+    },
+    {
+      "step_id": "s3",
+      "raw_text": "then add 100 uL buffer and incubate at 37C for 10 min.",
+      "action": "add_and_incubate",
+      "entities": {
+        "target": "sample tube"
+      },
+      "parameters": {
+        "volume_ul": 100,
+        "temperature_c": 37,
+        "duration_min": 10
+      }
+    }
+  ]
+}

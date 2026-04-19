@@ -1,0 +1,19 @@
+{
+  "grounding_valid": false,
+  "failure_reason": "unregistered_api_detected",
+  "contains_unregistered_api": true,
+  "unregistered_apis": [
+    "vortex"
+  ],
+  "model_contains_unregistered_api": true,
+  "model_unregistered_apis": [
+    "vortex"
+  ],
+  "scanner_contains_unregistered_api": false,
+  "scanner_unregistered_apis": [],
+  "model_scanner_consistent": false,
+  "issues": [
+    "contains_unregistered_api_mismatch_with_scanner",
+    "unregistered_apis_mismatch_with_scanner"
+  ]
+}

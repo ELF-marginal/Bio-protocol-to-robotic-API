@@ -1,0 +1,127 @@
+{
+  "case_id": "case_010_rule_only_simple",
+  "success": false,
+  "checks": {
+    "parsing_check": false,
+    "grounding_check": true,
+    "sequence_check": false,
+    "parameter_check": true,
+    "final_state_check": false,
+    "validation_after_check": true,
+    "execution_check": false
+  },
+  "failure_reasons": [
+    "sequence mismatch at index 2: expected=fridge.close, actual=pipette.attach_tip",
+    "sequence mismatch at index 6: expected=pipette.mix, actual=pipette.discard_tip",
+    "sequence mismatch at index 7: expected=pipette.discard_tip, actual=pipette.attach_tip",
+    "sequence mismatch at index 8: expected=tube.cap, actual=pipette.mix",
+    "sequence mismatch at index 9: expected=fridge.open, actual=tube.cap"
+  ],
+  "details": {
+    "execution_success": false,
+    "api_calls": [
+      "fridge.open",
+      "robot.pick",
+      "pipette.attach_tip",
+      "tube.uncap",
+      "pipette.attach_tip",
+      "pipette.transfer",
+      "pipette.discard_tip",
+      "pipette.attach_tip",
+      "pipette.mix",
+      "tube.cap",
+      "robot.place",
+      "fridge.close",
+      "pipette.discard_tip"
+    ],
+    "executed_calls": 5,
+    "validation_before": {
+      "valid": true,
+      "issue_count": 0,
+      "issues": []
+    },
+    "repair_result": {
+      "repaired": false,
+      "applied_repairs": []
+    },
+    "validation_after": {
+      "valid": true,
+      "issue_count": 0,
+      "issues": []
+    },
+    "grounding_result": {
+      "grounding_backend_mode": "llm_primary",
+      "llm_grounding_invoked": true,
+      "llm_grounding_valid_json": true,
+      "llm_grounding_schema_valid": true,
+      "llm_grounding_accepted": true,
+      "llm_grounding_fallback_used": false,
+      "grounding_valid": true,
+      "contains_unregistered_api": false,
+      "unregistered_apis": [],
+      "model_contains_unregistered_api": false,
+      "model_unregistered_apis": [],
+      "scanner_contains_unregistered_api": false,
+      "scanner_unregistered_apis": [],
+      "model_scanner_consistent": true,
+      "grounding_failure_reason": null,
+      "grounding_issues": []
+    },
+    "grounding_validation_result": {
+      "grounding_valid": true,
+      "failure_reason": null,
+      "contains_unregistered_api": false,
+      "unregistered_apis": [],
+      "model_contains_unregistered_api": false,
+      "model_unregistered_apis": [],
+      "scanner_contains_unregistered_api": false,
+      "scanner_unregistered_apis": [],
+      "model_scanner_consistent": true,
+      "issues": []
+    },
+    "llm_repair_result": {
+      "llm_invoked": false,
+      "llm_output_valid_json": false,
+      "llm_patch_applied": false,
+      "llm_patch_accepted": false,
+      "llm_repair_success": false,
+      "llm_failure_reason": "llm_repair_flag_disabled"
+    },
+    "llm_parser_result": {
+      "parser_backend_mode": "llm_primary",
+      "llm_parser_invoked": true,
+      "llm_parser_valid_json": true,
+      "llm_parser_schema_valid": true,
+      "llm_parser_accepted": true,
+      "llm_parser_fallback_used": false,
+      "llm_parser_failure_reason": null
+    },
+    "llm_validation_result": {
+      "validation_before_llm_issue_count": 0,
+      "validation_after_llm_issue_count": 0,
+      "remaining_issues_after_llm": []
+    },
+    "metrics": {
+      "parsing": {
+        "matched": 0,
+        "total": 12
+      },
+      "grounding": {
+        "matched": 10,
+        "total": 10
+      },
+      "sequence": {
+        "matched": 7,
+        "total": 12
+      },
+      "parameter": {
+        "matched": 10,
+        "total": 10
+      },
+      "final_state": {
+        "matched": 0,
+        "total": 2
+      }
+    }
+  }
+}
