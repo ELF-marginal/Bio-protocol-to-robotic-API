@@ -1,0 +1,186 @@
+case_id: bio_lab_protocol_002
+difficulty: Easy
+domain: bio_lab_numeric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Open the DNA sample tube, primer mix tube, and PCR tube. Using fresh tips,
+  transfer 20 uL of DNA sample and 30 uL of primer mix into the PCR tube, then
+  mix 40 uL for 4 repetitions and close all tubes.
+
+expected_api_sequence:
+
+  - api: open_container
+    args:
+      container: dna_sample_tube
+
+  - api: open_container
+    args:
+      container: primer_mix_tube
+
+  - api: open_container
+    args:
+      container: pcr_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: dna_sample_tube
+      target: pcr_tube
+      liquid: dna_sample
+      volume_ul: 20
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip2
+      source: primer_mix_tube
+      target: pcr_tube
+      liquid: primer_mix
+      volume_ul: 30
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: mix
+    args:
+      pipette: pipette1
+      tip: tip3
+      container: pcr_tube
+      mix_volume_ul: 40
+      repetitions: 4
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: close_container
+    args:
+      container: dna_sample_tube
+
+  - api: close_container
+    args:
+      container: primer_mix_tube
+
+  - api: close_container
+    args:
+      container: pcr_tube
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: contains
+      args:
+        container: pcr_tube
+        liquid: dna_sample
+
+    - predicate: contains
+      args:
+        container: pcr_tube
+        liquid: primer_mix
+
+    - predicate: mixed
+      args:
+        container: pcr_tube
+
+    - predicate: container_closed
+      args:
+        container: dna_sample_tube
+
+    - predicate: container_closed
+      args:
+        container: primer_mix_tube
+
+    - predicate: container_closed
+      args:
+        container: pcr_tube
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: tip_used
+      args:
+        tip: tip2
+
+    - predicate: tip_used
+      args:
+        tip: tip3
+
+    - predicate: container_used
+      args:
+        container: pcr_tube
+
+  functions:
+
+    - function: volume
+      args:
+        container: pcr_tube
+        liquid: dna_sample
+      op: "=="
+      value: 20
+      unit: ul
+
+    - function: volume
+      args:
+        container: pcr_tube
+        liquid: primer_mix
+      op: "=="
+      value: 30
+      unit: ul
+
+    - function: volume
+      args:
+        container: dna_sample_tube
+        liquid: dna_sample
+      op: "=="
+      value: 80
+      unit: ul
+
+    - function: volume
+      args:
+        container: primer_mix_tube
+        liquid: primer_mix
+      op: "=="
+      value: 170
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: pcr_tube
+      op: "=="
+      value: 50
+      unit: ul
+

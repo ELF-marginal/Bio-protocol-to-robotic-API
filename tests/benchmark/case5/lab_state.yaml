@@ -1,0 +1,240 @@
+lab_state_id: simple_bio_lab_state_005
+domain: bio_lab_numeric_api
+
+objects:
+
+  pipettes:
+    pipette1:
+      type: pipette
+
+  tips:
+    tip1:
+      type: tip
+    tip2:
+      type: tip
+
+  containers:
+    sample_tube:
+      type: tube
+    buffer_tube:
+      type: tube
+    assay_tube:
+      type: tube
+
+  liquids:
+    cell_sample:
+      type: sample
+    staining_buffer:
+      type: buffer
+
+  devices:
+    fridge1:
+      type: fridge
+    heater1:
+      type: heater
+    centrifuge1:
+      type: centrifuge
+
+  locations:
+    bench:
+      type: location
+    cold_room:
+      type: location
+
+init:
+
+  predicates:
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_clean
+      args:
+        tip: tip1
+
+    - predicate: tip_clean
+      args:
+        tip: tip2
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: buffer_tube
+
+    - predicate: container_closed
+      args:
+        container: assay_tube
+
+    - predicate: container_used
+      args:
+        container: sample_tube
+
+    - predicate: container_used
+      args:
+        container: buffer_tube
+
+    - predicate: container_clean
+      args:
+        container: assay_tube
+
+    - predicate: container_at
+      args:
+        container: sample_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: buffer_tube
+        location: cold_room
+
+    - predicate: container_at
+      args:
+        container: assay_tube
+        location: bench
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: cell_sample
+
+    - predicate: contains
+      args:
+        container: buffer_tube
+        liquid: staining_buffer
+
+    - predicate: liquid_at
+      args:
+        liquid: cell_sample
+        location: bench
+
+    - predicate: stored_in_fridge
+      args:
+        liquid: staining_buffer
+        fridge: fridge1
+
+    - predicate: device_at
+      args:
+        device: fridge1
+        location: cold_room
+
+    - predicate: device_at
+      args:
+        device: heater1
+        location: bench
+
+    - predicate: device_at
+      args:
+        device: centrifuge1
+        location: bench
+
+    - predicate: fridge_closed
+      args:
+        fridge: fridge1
+
+    - predicate: heater_off
+      args:
+        heater: heater1
+
+    - predicate: centrifuge_closed
+      args:
+        centrifuge: centrifuge1
+
+  functions:
+
+    - function: pipette_max_volume
+      args:
+        pipette: pipette1
+      value: 1000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sample_tube
+      value: 1500
+      unit: ul
+
+    - function: capacity
+      args:
+        container: buffer_tube
+      value: 1500
+      unit: ul
+
+    - function: capacity
+      args:
+        container: assay_tube
+      value: 1500
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      value: 200
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: buffer_tube
+      value: 1000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: assay_tube
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: cell_sample
+      value: 200
+      unit: ul
+
+    - function: volume
+      args:
+        container: buffer_tube
+        liquid: staining_buffer
+      value: 1000
+      unit: ul
+
+    - function: volume
+      args:
+        container: assay_tube
+        liquid: cell_sample
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: assay_tube
+        liquid: staining_buffer
+      value: 0
+      unit: ul
+
+    - function: temperature
+      args:
+        device: heater1
+      value: 25
+      unit: celsius
+
+    - function: heater_min_temperature
+      args:
+        device: heater1
+      value: 0
+      unit: celsius
+
+    - function: heater_max_temperature
+      args:
+        device: heater1
+      value: 100
+      unit: celsius
+
+    - function: centrifuge_max_speed
+      args:
+        centrifuge: centrifuge1
+      value: 20000
+      unit: rpm

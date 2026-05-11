@@ -1,0 +1,52 @@
+- rule_id: no_reuse_tip_for_transfer
+  version: "1.0"
+
+  metadata:
+    name: "Do not reuse a pipette tip for transfer"
+    category: contamination_control
+    severity: error
+    scope: pre_call
+    trigger_api: transfer
+    description: >
+      Prevent using a tip that has already performed a liquid transfer.
+      Each liquid-handling transfer should use a fresh tip or a newly attached
+      clean tip to avoid cross-contamination between assay tubes.
+
+  bindings:
+    tip:
+      from: call.args.tip
+      type: tip
+      required: true
+
+  conditions:
+    all:
+      - id: tip_already_used
+        kind: predicate_exists
+        predicate: tip_used
+        args:
+          tip: "$tip"
+
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot reuse a pipette tip for another transfer."
+
+  evidence:
+    include:
+      - binding: tip
+      - condition: tip_already_used
+
+  repair:
+    repairable: true
+    suggestions:
+      - strategy: insert_detach_and_attach_clean_tip
+        description: "Detach the used tip, attach a fresh clean tip, and update the following transfer to use the fresh tip."
+      - strategy: use_fresh_tip_for_each_transfer
+        description: "Use a different clean tip for each liquid-handling transfer."
+
+  tags:
+    - pipette
+    - tip
+    - contamination_control
+    - dynamic_state_check

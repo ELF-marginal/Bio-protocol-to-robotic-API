@@ -1,0 +1,389 @@
+case_id: bio_lab_protocol_008
+difficulty: Medium
+domain: bio_lab_colorimetric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Label one clean test tube as sample_tube. Label another clean test tube as
+  blank_tube. Open the sample solution tube, distilled water tube, sodium
+  hydroxide tube, copper sulfate tube, sample_tube, and blank_tube. Use a fresh
+  tip to transfer 2000 uL of sample solution into sample_tube. Use a fresh tip
+  to transfer 2000 uL of distilled water into blank_tube. Use fresh tips to add
+  2000 uL of sodium hydroxide solution into each labeled tube. Cap both labeled
+  tubes. Mix sample_tube gently for 5 seconds. Mix blank_tube gently for 5
+  seconds. Reopen both labeled tubes. Add 3 drops of copper sulfate solution
+  into sample_tube. Add 3 drops of copper sulfate solution into blank_tube. Cap
+  both labeled tubes again. Mix both labeled tubes gently for 5 seconds. Let both
+  tubes stand at room temperature for 2 minutes.
+
+expected_api_sequence:
+
+  - api: label_container
+    args:
+      container: sample_tube
+      label: sample_label
+
+  - api: label_container
+    args:
+      container: blank_tube
+      label: blank_label
+
+  - api: open_container
+    args:
+      container: sample_solution_tube
+
+  - api: open_container
+    args:
+      container: distilled_water_tube
+
+  - api: open_container
+    args:
+      container: sodium_hydroxide_tube
+
+  - api: open_container
+    args:
+      container: copper_sulfate_tube
+
+  - api: open_container
+    args:
+      container: sample_tube
+
+  - api: open_container
+    args:
+      container: blank_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: sample_solution_tube
+      target: sample_tube
+      liquid: sample_solution
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip2
+      source: distilled_water_tube
+      target: blank_tube
+      liquid: distilled_water
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip3
+      source: sodium_hydroxide_tube
+      target: sample_tube
+      liquid: sodium_hydroxide
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip4
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip4
+      source: sodium_hydroxide_tube
+      target: blank_tube
+      liquid: sodium_hydroxide
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip4
+
+  - api: close_container
+    args:
+      container: sample_tube
+
+  - api: close_container
+    args:
+      container: blank_tube
+
+  - api: mix_seconds
+    args:
+      container: sample_tube
+      duration_sec: 5
+      location: bench
+
+  - api: mix_seconds
+    args:
+      container: blank_tube
+      duration_sec: 5
+      location: bench
+
+  - api: open_container
+    args:
+      container: sample_tube
+
+  - api: open_container
+    args:
+      container: blank_tube
+
+  - api: add_drops
+    args:
+      source: copper_sulfate_tube
+      target: sample_tube
+      liquid: copper_sulfate
+      drops: 3
+      location: bench
+
+  - api: add_drops
+    args:
+      source: copper_sulfate_tube
+      target: blank_tube
+      liquid: copper_sulfate
+      drops: 3
+      location: bench
+
+  - api: close_container
+    args:
+      container: sample_tube
+
+  - api: close_container
+    args:
+      container: blank_tube
+
+  - api: mix_seconds
+    args:
+      container: sample_tube
+      duration_sec: 5
+      location: bench
+
+  - api: mix_seconds
+    args:
+      container: blank_tube
+      duration_sec: 5
+      location: bench
+
+  - api: stand_at_room_temperature
+    args:
+      container: sample_tube
+      duration_min: 2
+      location: bench
+
+  - api: stand_at_room_temperature
+    args:
+      container: blank_tube
+      duration_min: 2
+      location: bench
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: labeled
+      args:
+        container: sample_tube
+        label: sample_label
+
+    - predicate: labeled
+      args:
+        container: blank_tube
+        label: blank_label
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: sample_solution
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: sodium_hydroxide
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: copper_sulfate
+
+    - predicate: contains
+      args:
+        container: blank_tube
+        liquid: distilled_water
+
+    - predicate: contains
+      args:
+        container: blank_tube
+        liquid: sodium_hydroxide
+
+    - predicate: contains
+      args:
+        container: blank_tube
+        liquid: copper_sulfate
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: blank_tube
+
+    - predicate: mixed
+      args:
+        container: sample_tube
+
+    - predicate: mixed
+      args:
+        container: blank_tube
+
+    - predicate: stood
+      args:
+        container: sample_tube
+
+    - predicate: stood
+      args:
+        container: blank_tube
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: tip_used
+      args:
+        tip: tip2
+
+    - predicate: tip_used
+      args:
+        tip: tip3
+
+    - predicate: tip_used
+      args:
+        tip: tip4
+
+  functions:
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      op: "=="
+      value: 4000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: blank_tube
+      op: "=="
+      value: 4000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sample_solution
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sodium_hydroxide
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: distilled_water
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: sodium_hydroxide
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: drop_count
+      args:
+        container: sample_tube
+        liquid: copper_sulfate
+      op: "=="
+      value: 3
+      unit: drops
+
+    - function: drop_count
+      args:
+        container: blank_tube
+        liquid: copper_sulfate
+      op: "=="
+      value: 3
+      unit: drops
+
+    - function: mix_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 5
+      unit: sec
+
+    - function: mix_duration
+      args:
+        container: blank_tube
+      op: "=="
+      value: 5
+      unit: sec
+
+    - function: standing_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 2
+      unit: min
+
+    - function: standing_duration
+      args:
+        container: blank_tube
+      op: "=="
+      value: 2
+      unit: min

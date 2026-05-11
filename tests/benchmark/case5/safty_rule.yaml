@@ -1,0 +1,52 @@
+- rule_id: no_clean_tube_on_heater
+  version: "1.0"
+
+  metadata:
+    name: "Do not place a clean tube on a heater"
+    category: contamination_control
+    severity: error
+    scope: pre_call
+    trigger_api: place_on_heater
+    description: >
+      Prevent placing an empty clean tube or clean container on a heater.
+      Containers should only be heated after the protocol has intentionally
+      used them, for example after liquid has been added.
+
+  bindings:
+    container:
+      from: call.args.container
+      type: container
+      required: true
+
+  conditions:
+    all:
+      - id: container_is_clean
+        kind: predicate_exists
+        predicate: container_clean
+        args:
+          container: "$container"
+
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot place a clean container on a heater."
+
+  evidence:
+    include:
+      - binding: container
+      - condition: container_is_clean
+
+  repair:
+    repairable: true
+    suggestions:
+      - strategy: add_liquid_before_heating
+        description: "Add the intended liquid to the container before placing it on the heater."
+      - strategy: use_used_container
+        description: "Use a container that is already marked as used if heating an empty vessel is intentional."
+
+  tags:
+    - heater
+    - clean_container
+    - contamination_control
+    - dynamic_state_check

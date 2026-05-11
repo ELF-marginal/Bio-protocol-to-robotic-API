@@ -1,0 +1,57 @@
+case_id: bio_lab_protocol_006
+difficulty: Easy
+domain: bio_lab_numeric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Open the used reaction tube on the bench. Wash the used reaction tube, then
+  close it.
+
+expected_api_sequence:
+
+  - api: open_container
+    args:
+      container: used_reaction_tube
+
+  - api: wash_container
+    args:
+      container: used_reaction_tube
+      location: bench
+
+  - api: close_container
+    args:
+      container: used_reaction_tube
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: container_clean
+      args:
+        container: used_reaction_tube
+
+    - predicate: container_closed
+      args:
+        container: used_reaction_tube
+
+    - predicate: container_at
+      args:
+        container: used_reaction_tube
+        location: bench
+
+  functions:
+
+    - function: total_volume
+      args:
+        container: used_reaction_tube
+      op: "=="
+      value: 0
+      unit: ul
+
+    - function: capacity
+      args:
+        container: used_reaction_tube
+      op: "=="
+      value: 1500
+      unit: ul
+

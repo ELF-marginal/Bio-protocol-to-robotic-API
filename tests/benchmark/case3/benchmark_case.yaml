@@ -1,0 +1,190 @@
+case_id: bio_lab_protocol_003
+difficulty: Easy
+domain: bio_lab_numeric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Open the enzyme tube, substrate tube, and reaction tube. Transfer 25 uL of
+  enzyme and 75 uL of substrate into the reaction tube with fresh tips, mix 80
+  uL for 3 repetitions, then close the tube and incubate it at 30 C for 10
+  minutes.
+
+expected_api_sequence:
+
+  - api: open_container
+    args:
+      container: enzyme_tube
+
+  - api: open_container
+    args:
+      container: substrate_tube
+
+  - api: open_container
+    args:
+      container: reaction_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: enzyme_tube
+      target: reaction_tube
+      liquid: enzyme_solution
+      volume_ul: 25
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip2
+      source: substrate_tube
+      target: reaction_tube
+      liquid: substrate_solution
+      volume_ul: 75
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: mix
+    args:
+      pipette: pipette1
+      tip: tip3
+      container: reaction_tube
+      mix_volume_ul: 80
+      repetitions: 3
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: close_container
+    args:
+      container: reaction_tube
+
+  - api: set_temperature
+    args:
+      heater: heater1
+      temperature_c: 30
+
+  - api: place_on_heater
+    args:
+      container: reaction_tube
+      heater: heater1
+      location: bench
+
+  - api: incubate
+    args:
+      container: reaction_tube
+      heater: heater1
+      temperature_c: 30
+      duration_min: 10
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: contains
+      args:
+        container: reaction_tube
+        liquid: enzyme_solution
+
+    - predicate: contains
+      args:
+        container: reaction_tube
+        liquid: substrate_solution
+
+    - predicate: mixed
+      args:
+        container: reaction_tube
+
+    - predicate: incubated
+      args:
+        container: reaction_tube
+
+    - predicate: container_closed
+      args:
+        container: reaction_tube
+
+    - predicate: on_heater
+      args:
+        container: reaction_tube
+        heater: heater1
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: container_used
+      args:
+        container: reaction_tube
+
+  functions:
+
+    - function: total_volume
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 100
+      unit: ul
+
+    - function: volume
+      args:
+        container: reaction_tube
+        liquid: enzyme_solution
+      op: "=="
+      value: 25
+      unit: ul
+
+    - function: volume
+      args:
+        container: reaction_tube
+        liquid: substrate_solution
+      op: "=="
+      value: 75
+      unit: ul
+
+    - function: temperature
+      args:
+        device: heater1
+      op: "=="
+      value: 30
+      unit: celsius
+
+    - function: incubation_temperature
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 30
+      unit: celsius
+
+    - function: incubation_duration
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 10
+      unit: min

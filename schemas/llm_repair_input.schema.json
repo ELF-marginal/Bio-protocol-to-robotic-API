@@ -10,10 +10,10 @@
     "applied_rule_repairs",
     "remaining_issues_after_rule_repair",
     "available_apis",
-    "lab_state_summary",
+    "api_domain",
+    "safety_rules",
     "lab_state_initial",
-    "lab_state_expected",
-    "notice",
+    "simulated_final_state_before_repair",
     "task"
   ],
   "properties": {
@@ -32,14 +32,16 @@
           "name": { "type": "string" },
           "description": { "type": "string" },
           "required_args": { "type": "array", "items": { "type": "string" } },
-          "arg_types": { "type": "object" }
+          "arg_types": { "type": "object" },
+          "preconditions": { "type": "object" },
+          "effects": { "type": "object" }
         }
       }
     },
-    "lab_state_summary": { "type": "object" },
+    "api_domain": { "type": "object" },
+    "safety_rules": { "type": "array" },
     "lab_state_initial": { "type": "object" },
-    "lab_state_expected": { "type": "object" },
-    "notice": { "type": "string" },
+    "simulated_final_state_before_repair": { "type": "object" },
     "task": { "type": "string" }
   }
 }

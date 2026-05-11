@@ -1,0 +1,149 @@
+case_id: bio_lab_protocol_004
+difficulty: Easy
+domain: bio_lab_numeric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Open the cell lysate tube and spin tube. Transfer 200 uL of cell lysate into
+  the spin tube with a fresh tip, then detach the tip. Close both tubes, then
+  centrifuge the spin tube at 8000 rpm for 3 minutes.
+
+expected_api_sequence:
+
+  - api: open_container
+    args:
+      container: cell_lysate_tube
+
+  - api: open_container
+    args:
+      container: spin_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: cell_lysate_tube
+      target: spin_tube
+      liquid: cell_lysate
+      volume_ul: 200
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: close_container
+    args:
+      container: cell_lysate_tube
+
+  - api: close_container
+    args:
+      container: spin_tube
+
+  - api: open_centrifuge
+    args:
+      centrifuge: centrifuge1
+
+  - api: load_centrifuge
+    args:
+      centrifuge: centrifuge1
+      container: spin_tube
+      location: bench
+
+  - api: close_centrifuge
+    args:
+      centrifuge: centrifuge1
+
+  - api: centrifuge
+    args:
+      centrifuge: centrifuge1
+      container: spin_tube
+      speed_rpm: 8000
+      duration_min: 3
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: contains
+      args:
+        container: spin_tube
+        liquid: cell_lysate
+
+    - predicate: centrifuged
+      args:
+        container: spin_tube
+
+    - predicate: centrifuge_loaded
+      args:
+        centrifuge: centrifuge1
+        container: spin_tube
+
+    - predicate: centrifuge_closed
+      args:
+        centrifuge: centrifuge1
+
+    - predicate: container_closed
+      args:
+        container: cell_lysate_tube
+
+    - predicate: container_closed
+      args:
+        container: spin_tube
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: container_used
+      args:
+        container: spin_tube
+
+  functions:
+
+    - function: volume
+      args:
+        container: spin_tube
+        liquid: cell_lysate
+      op: "=="
+      value: 200
+      unit: ul
+
+    - function: volume
+      args:
+        container: cell_lysate_tube
+        liquid: cell_lysate
+      op: "=="
+      value: 300
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: spin_tube
+      op: "=="
+      value: 200
+      unit: ul
+
+    - function: centrifuge_speed
+      args:
+        container: spin_tube
+      op: "=="
+      value: 8000
+      unit: rpm
+
+    - function: centrifuge_duration
+      args:
+        container: spin_tube
+      op: "=="
+      value: 3
+      unit: min

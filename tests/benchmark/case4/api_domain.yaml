@@ -1,0 +1,1042 @@
+domain: bio_lab_numeric_api
+
+requirements:
+  - strips
+  - typing
+  - negative_preconditions
+  - numeric_fluents
+
+types:
+  object:
+    - robot
+    - pipette
+    - tip
+    - container
+    - liquid
+    - device
+    - location
+
+  container:
+    - tube
+    - plate
+    - well
+
+  liquid:
+    - sample
+    - reagent
+    - buffer
+
+  device:
+    - fridge
+    - heater
+    - centrifuge
+
+predicates:
+
+  pipette_free:
+    args:
+      pipette: pipette
+
+  has_tip:
+    args:
+      pipette: pipette
+      tip: tip
+
+  tip_clean:
+    args:
+      tip: tip
+
+  tip_used:
+    args:
+      tip: tip
+
+  container_clean:
+    args:
+      container: container
+
+  container_used:
+    args:
+      container: container
+
+  container_open:
+    args:
+      container: container
+
+  container_closed:
+    args:
+      container: container
+
+  mixed:
+    args:
+      container: container
+
+  incubated:
+    args:
+      container: container
+
+  centrifuged:
+    args:
+      container: container
+
+  contains:
+    args:
+      container: container
+      liquid: liquid
+
+  container_at:
+    args:
+      container: container
+      location: location
+
+  liquid_at:
+    args:
+      liquid: liquid
+      location: location
+
+  device_at:
+    args:
+      device: device
+      location: location
+
+  fridge_open:
+    args:
+      fridge: fridge
+
+  fridge_closed:
+    args:
+      fridge: fridge
+
+  stored_in_fridge:
+    args:
+      liquid: liquid
+      fridge: fridge
+
+  heater_on:
+    args:
+      heater: heater
+
+  heater_off:
+    args:
+      heater: heater
+
+  on_heater:
+    args:
+      container: container
+      heater: heater
+
+  centrifuge_open:
+    args:
+      centrifuge: centrifuge
+
+  centrifuge_closed:
+    args:
+      centrifuge: centrifuge
+
+  centrifuge_loaded:
+    args:
+      centrifuge: centrifuge
+      container: container
+
+functions:
+
+  volume:
+    args:
+      container: container
+      liquid: liquid
+    return_type: number
+    unit: ul
+
+  capacity:
+    args:
+      container: container
+    return_type: number
+    unit: ul
+
+  total_volume:
+    args:
+      container: container
+    return_type: number
+    unit: ul
+
+  pipette_max_volume:
+    args:
+      pipette: pipette
+    return_type: number
+    unit: ul
+
+  temperature:
+    args:
+      device: device
+    return_type: number
+    unit: celsius
+
+  heater_min_temperature:
+    args:
+      device: device
+    return_type: number
+    unit: celsius
+
+  heater_max_temperature:
+    args:
+      device: device
+    return_type: number
+    unit: celsius
+
+  incubation_temperature:
+    args:
+      container: container
+    return_type: number
+    unit: celsius
+
+  incubation_duration:
+    args:
+      container: container
+    return_type: number
+    unit: min
+
+  centrifuge_speed:
+    args:
+      container: container
+    return_type: number
+    unit: rpm
+
+  centrifuge_duration:
+    args:
+      container: container
+    return_type: number
+    unit: min
+
+  centrifuge_max_speed:
+    args:
+      centrifuge: centrifuge
+    return_type: number
+    unit: rpm
+
+actions:
+
+  attach_tip:
+    parameters:
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+
+    preconditions:
+      all:
+        - predicate: pipette_free
+          args:
+            pipette: pipette
+
+        - predicate: tip_clean
+          args:
+            tip: tip
+
+        - not:
+            predicate: tip_used
+            args:
+              tip: tip
+
+    effects:
+      add:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+      delete:
+        - predicate: pipette_free
+          args:
+            pipette: pipette
+
+  detach_tip:
+    parameters:
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+
+    preconditions:
+      all:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+    effects:
+      add:
+        - predicate: pipette_free
+          args:
+            pipette: pipette
+
+        - predicate: tip_used
+          args:
+            tip: tip
+
+      delete:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - predicate: tip_clean
+          args:
+            tip: tip
+
+  move_container:
+    parameters:
+      container:
+        type: container
+      from_location:
+        type: location
+      to_location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: container_at
+          args:
+            container: container
+            location: from_location
+
+    effects:
+      add:
+        - predicate: container_at
+          args:
+            container: container
+            location: to_location
+
+      delete:
+        - predicate: container_at
+          args:
+            container: container
+            location: from_location
+
+  open_container:
+    parameters:
+      container:
+        type: container
+
+    preconditions:
+      all:
+        - predicate: container_closed
+          args:
+            container: container
+
+    effects:
+      add:
+        - predicate: container_open
+          args:
+            container: container
+
+      delete:
+        - predicate: container_closed
+          args:
+            container: container
+
+  close_container:
+    parameters:
+      container:
+        type: container
+
+    preconditions:
+      all:
+        - predicate: container_open
+          args:
+            container: container
+
+    effects:
+      add:
+        - predicate: container_closed
+          args:
+            container: container
+
+      delete:
+        - predicate: container_open
+          args:
+            container: container
+
+  transfer:
+    parameters:
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+      source:
+        type: container
+      target:
+        type: container
+      liquid:
+        type: liquid
+      volume_ul:
+        type: number
+        unit: ul
+        min: 0
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - not:
+            predicate: tip_used
+            args:
+              tip: tip
+
+        - predicate: container_open
+          args:
+            container: source
+
+        - predicate: container_open
+          args:
+            container: target
+
+        - predicate: container_at
+          args:
+            container: source
+            location: location
+
+        - predicate: container_at
+          args:
+            container: target
+            location: location
+
+        - predicate: contains
+          args:
+            container: source
+            liquid: liquid
+
+        - numeric:
+            left:
+              function: volume
+              args:
+                container: source
+                liquid: liquid
+            op: ">="
+            right:
+              parameter: volume_ul
+
+        - numeric:
+            left:
+              function: pipette_max_volume
+              args:
+                pipette: pipette
+            op: ">="
+            right:
+              parameter: volume_ul
+
+        - numeric:
+            left:
+              expression: subtract
+              operands:
+                - function: capacity
+                  args:
+                    container: target
+                - function: total_volume
+                  args:
+                    container: target
+            op: ">="
+            right:
+              parameter: volume_ul
+
+    effects:
+      add:
+        - predicate: contains
+          args:
+            container: target
+            liquid: liquid
+
+        - predicate: tip_used
+          args:
+            tip: tip
+
+        - predicate: container_used
+          args:
+            container: target
+
+      delete:
+        - predicate: tip_clean
+          args:
+            tip: tip
+
+        - predicate: container_clean
+          args:
+            container: target
+
+      numeric:
+        - function: volume
+          args:
+            container: source
+            liquid: liquid
+          op: "-="
+          value:
+            parameter: volume_ul
+
+        - function: volume
+          args:
+            container: target
+            liquid: liquid
+          op: "+="
+          value:
+            parameter: volume_ul
+
+        - function: total_volume
+          args:
+            container: source
+          op: "-="
+          value:
+            parameter: volume_ul
+
+        - function: total_volume
+          args:
+            container: target
+          op: "+="
+          value:
+            parameter: volume_ul
+
+  mix:
+    parameters:
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+      container:
+        type: container
+      mix_volume_ul:
+        type: number
+        unit: ul
+        min: 0
+      repetitions:
+        type: integer
+        min: 1
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - not:
+            predicate: tip_used
+            args:
+              tip: tip
+
+        - predicate: container_open
+          args:
+            container: container
+
+        - predicate: container_at
+          args:
+            container: container
+            location: location
+
+        - numeric:
+            left:
+              function: total_volume
+              args:
+                container: container
+            op: ">"
+            right:
+              value: 0
+
+        - numeric:
+            left:
+              function: total_volume
+              args:
+                container: container
+            op: ">="
+            right:
+              parameter: mix_volume_ul
+
+        - numeric:
+            left:
+              function: pipette_max_volume
+              args:
+                pipette: pipette
+            op: ">="
+            right:
+              parameter: mix_volume_ul
+
+    effects:
+      add:
+        - predicate: mixed
+          args:
+            container: container
+
+        - predicate: tip_used
+          args:
+            tip: tip
+
+        - predicate: container_used
+          args:
+            container: container
+
+      delete:
+        - predicate: tip_clean
+          args:
+            tip: tip
+
+        - predicate: container_clean
+          args:
+            container: container
+
+  open_fridge:
+    parameters:
+      fridge:
+        type: fridge
+
+    preconditions:
+      all:
+        - predicate: fridge_closed
+          args:
+            fridge: fridge
+
+    effects:
+      add:
+        - predicate: fridge_open
+          args:
+            fridge: fridge
+
+      delete:
+        - predicate: fridge_closed
+          args:
+            fridge: fridge
+
+  close_fridge:
+    parameters:
+      fridge:
+        type: fridge
+
+    preconditions:
+      all:
+        - predicate: fridge_open
+          args:
+            fridge: fridge
+
+    effects:
+      add:
+        - predicate: fridge_closed
+          args:
+            fridge: fridge
+
+      delete:
+        - predicate: fridge_open
+          args:
+            fridge: fridge
+
+  take_from_fridge:
+    parameters:
+      liquid:
+        type: liquid
+      fridge:
+        type: fridge
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: fridge_open
+          args:
+            fridge: fridge
+
+        - predicate: stored_in_fridge
+          args:
+            liquid: liquid
+            fridge: fridge
+
+    effects:
+      add:
+        - predicate: liquid_at
+          args:
+            liquid: liquid
+            location: location
+
+      delete:
+        - predicate: stored_in_fridge
+          args:
+            liquid: liquid
+            fridge: fridge
+
+  put_into_fridge:
+    parameters:
+      liquid:
+        type: liquid
+      fridge:
+        type: fridge
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: fridge_open
+          args:
+            fridge: fridge
+
+        - predicate: liquid_at
+          args:
+            liquid: liquid
+            location: location
+
+    effects:
+      add:
+        - predicate: stored_in_fridge
+          args:
+            liquid: liquid
+            fridge: fridge
+
+      delete:
+        - predicate: liquid_at
+          args:
+            liquid: liquid
+            location: location
+
+  set_temperature:
+    parameters:
+      heater:
+        type: heater
+      temperature_c:
+        type: number
+        unit: celsius
+
+    preconditions:
+      all:
+        - predicate: heater_off
+          args:
+            heater: heater
+
+        - numeric:
+            left:
+              parameter: temperature_c
+            op: ">="
+            right:
+              function: heater_min_temperature
+              args:
+                device: heater
+
+        - numeric:
+            left:
+              parameter: temperature_c
+            op: "<="
+            right:
+              function: heater_max_temperature
+              args:
+                device: heater
+
+    effects:
+      add:
+        - predicate: heater_on
+          args:
+            heater: heater
+
+      delete:
+        - predicate: heater_off
+          args:
+            heater: heater
+
+      numeric:
+        - function: temperature
+          args:
+            device: heater
+          op: "="
+          value:
+            parameter: temperature_c
+
+  place_on_heater:
+    parameters:
+      container:
+        type: container
+      heater:
+        type: heater
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: heater_on
+          args:
+            heater: heater
+
+        - predicate: container_at
+          args:
+            container: container
+            location: location
+
+        - predicate: device_at
+          args:
+            device: heater
+            location: location
+
+    effects:
+      add:
+        - predicate: on_heater
+          args:
+            container: container
+            heater: heater
+
+  incubate:
+    parameters:
+      container:
+        type: container
+      heater:
+        type: heater
+      temperature_c:
+        type: number
+        unit: celsius
+      duration_min:
+        type: number
+        unit: min
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: on_heater
+          args:
+            container: container
+            heater: heater
+
+        - numeric:
+            left:
+              function: temperature
+              args:
+                device: heater
+            op: "=="
+            right:
+              parameter: temperature_c
+
+        - numeric:
+            left:
+              parameter: duration_min
+            op: ">"
+            right:
+              value: 0
+
+    effects:
+      add:
+        - predicate: incubated
+          args:
+            container: container
+
+      numeric:
+        - function: incubation_temperature
+          args:
+            container: container
+          op: "="
+          value:
+            parameter: temperature_c
+
+        - function: incubation_duration
+          args:
+            container: container
+          op: "="
+          value:
+            parameter: duration_min
+
+  open_centrifuge:
+    parameters:
+      centrifuge:
+        type: centrifuge
+
+    preconditions:
+      all:
+        - predicate: centrifuge_closed
+          args:
+            centrifuge: centrifuge
+
+    effects:
+      add:
+        - predicate: centrifuge_open
+          args:
+            centrifuge: centrifuge
+
+      delete:
+        - predicate: centrifuge_closed
+          args:
+            centrifuge: centrifuge
+
+  close_centrifuge:
+    parameters:
+      centrifuge:
+        type: centrifuge
+
+    preconditions:
+      all:
+        - predicate: centrifuge_open
+          args:
+            centrifuge: centrifuge
+
+    effects:
+      add:
+        - predicate: centrifuge_closed
+          args:
+            centrifuge: centrifuge
+
+      delete:
+        - predicate: centrifuge_open
+          args:
+            centrifuge: centrifuge
+
+  load_centrifuge:
+    parameters:
+      centrifuge:
+        type: centrifuge
+      container:
+        type: container
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: centrifuge_open
+          args:
+            centrifuge: centrifuge
+
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: container_at
+          args:
+            container: container
+            location: location
+
+        - predicate: device_at
+          args:
+            device: centrifuge
+            location: location
+
+        - numeric:
+            left:
+              function: total_volume
+              args:
+                container: container
+            op: ">"
+            right:
+              value: 0
+
+    effects:
+      add:
+        - predicate: centrifuge_loaded
+          args:
+            centrifuge: centrifuge
+            container: container
+
+  centrifuge:
+    parameters:
+      centrifuge:
+        type: centrifuge
+      container:
+        type: container
+      speed_rpm:
+        type: number
+        unit: rpm
+        min: 0
+      duration_min:
+        type: number
+        unit: min
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: centrifuge_closed
+          args:
+            centrifuge: centrifuge
+
+        - predicate: centrifuge_loaded
+          args:
+            centrifuge: centrifuge
+            container: container
+
+        - numeric:
+            left:
+              parameter: speed_rpm
+            op: ">"
+            right:
+              value: 0
+
+        - numeric:
+            left:
+              function: centrifuge_max_speed
+              args:
+                centrifuge: centrifuge
+            op: ">="
+            right:
+              parameter: speed_rpm
+
+        - numeric:
+            left:
+              parameter: duration_min
+            op: ">"
+            right:
+              value: 0
+
+    effects:
+      add:
+        - predicate: centrifuged
+          args:
+            container: container
+
+      numeric:
+        - function: centrifuge_speed
+          args:
+            container: container
+          op: "="
+          value:
+            parameter: speed_rpm
+
+        - function: centrifuge_duration
+          args:
+            container: container
+          op: "="
+          value:
+            parameter: duration_min
+
+  wash_container:
+    parameters:
+      container:
+        type: container
+      location:
+        type: location
+
+    preconditions:
+      all:
+        - predicate: container_open
+          args:
+            container: container
+
+        - predicate: container_at
+          args:
+            container: container
+            location: location
+
+        - predicate: container_used
+          args:
+            container: container
+
+    effects:
+      add:
+        - predicate: container_clean
+          args:
+            container: container
+
+      delete:
+        - predicate: container_used
+          args:
+            container: container

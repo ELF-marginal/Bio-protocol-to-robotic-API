@@ -1,37 +1,8 @@
+1.现在我要对这个项目进行修改，你需要知道的概况：1.没有运行环境， 你无需运行测试。2.configs目录里的api文件和lab_state是目前版本用的,目前保留是为了给你参考，让你方便修改。3.tests目录里是最新要改成的样子：对于每一个case,都有单独的api_domain（可用api库，新增类似PDDL格式的内容，便于后续的validator时进行检查），lab_state（实验室状态），benchmark_case，你需要让benchmark测试时满足最新的格式。4.目前请你修改全链路的文件（Validator,repair,executor除外），使之能够适应最新的benchmark，对应输出json也要输出好，便于我进行debug。5.你可能会看到旧版本残留（例如mock等等），无需考虑旧版本兼容问题，目前还处于开发初期。6.无需做LLM调用失败的回退兜底，如果有LLM调用失败，直接输出报错信息。好了请你浏览项目和我的提示词，好好思考，给出你的修改方案，我决策
 
-1. Grow 150 mL of liquid culture of cyanobacteria in BG-11 medium until it reaches an OD730 of 0.8–1.0.
+2.OK，接下来我要完善validator&repair。下面是具体指示：1.Validator是通过模拟执行上一步得到工作流来进行检查的，重点根据每个API的precondition，effects以及实验室的状态情况，去模拟执行，如果有不满足条件或者无法执行的步骤，那么会生成一轮错误信息（输出到json）。此时如果启用了llm_repair，那么会把错误信息交给repair，repair把错误信息，当前工作流，API库，实验室状态交给LLM，由LLM提出修复建议补丁（不是让它重写整个工作流），修复的方法可以是增加，删除，修改API，（输出对应的json）,最终将打好补丁的工作流交给Validator继续校验，直至Validator无报错信息（模拟执行通过），当然考虑到实际，可以在配置文件llm_repair中设置最大修复次数（默认为1）。
 
-2. Harvest the cells by spinning them in a Beckman centrifuge at 5,000× g for 10 min at room temperature.
+3.现在要进行一轮修改：1.修改case里的文件，对于存在数值的实验室具体到某一个物品，需要设置其数值：例如离心机A的最大转速为20000rpm,某个加热器1的温度范围为0-500摄氏度，注意全链路对单位的正确处理。2.需要对物品的状态进行更细致的维护，例如移液器枪头1在取液之后应该从free->used，试管1在加液后应该从clean->used，在清洗后应该从used->clean。3.在Validator中进行检查时应该注意对上述1，2的状态进行基本检查，例如不能离心机的转速不能设置超过最大转速，枪头使用过后不能再使用，注意不需要规则：“试管使用后不能再使用”。4.增加一个清洗试管的API，让试管变干净。5.请综合完善，确保全链路在新的修改下可跑通。
 
-3. Discard the supernatant and resuspend the pellet in 5 mL of BG-11 medium.
+4.接下来设计benchmark测评逻辑:首先每个case都会有一个难度标签：“Easy,Medium,Hard”,在完成一个case后，会对以下几个方面进行统计：pass(true/false，严格比对)，repair_num(迭代修复次数)，此外sequence_accuracy, parameter_accuracy, final_state_accuracy（这三个已经拥有）,score(为上述三个准确率的平均值，满值为1，保留三位小数)。最后把所有case按照难度进行分类，得到各个难度的pass_rate，平均的score。最终得到全部case通过率，和最终score:不同难度权重：easy:0.2,medium:0.3，hard:0.5。注意：把重要信息输出到summary_report.md（表格化,建立几个新表，别占用覆盖掉case result），最终在同步在控制台输出各难度通过率&得分和最终通过率&得分，请你修改全链路的必要文件，使之符合我的要求（顺带一提，目前的case1难度为Medium）
 
-4. Transfer 1 mL of sample into a 1.7 mL microfuge tube.
-
-
-1. Vigorously vortex the sample for 5 min at maximum speed.
-
-2. Add 300–400 μL of lysis buffer to the cell suspension and gently mix by pipetting up and down 5 times using a 1,000 μL pipette.
-
-3. Add 150 μL of precipitation buffer to the cell lysate and mix by inversion (10 times).
-
-4. Incubate cell lysate on ice for 5–7 min.
-
-5. After incubation, centrifuge the sample at 15,000× g for 3 min on a small benchtop centrifuge to pellet the unbroken cells and membranes.
-
-6. Transfer the supernatant to a new microfuge tube without disturbing the pellet, then centrifuge at 16,000× g for 4 min to remove any remnants.
-
-7. After centrifugation, transfer the supernatant to another clean microfuge tube and mix with 100% isopropanol in a 1:1 ratio.
-
-8. Incubate the sample for 7 min on ice, followed by 10 min at room temperature.
-
-9. Following incubation, centrifuge the sample mixture at 15,000× g for 5 min using a small benchtop centrifuge.
-
-10. Discard supernatant and wash the pellet with 400 μL of cold 70% ethanol. Centrifuge again at 15,000× g for 5 min.
-
-11. Remove the ethanol carefully without disturbing the RNA pellet.
-
-12. Air dry the pellets by inverting the tubes on a clean paper towel with the lid open for 10–15 min.
-
-13. Gently resuspend the dried pellet in 40 μL of DEPC-treated Milli-Q water and centrifuge at 16,000× g for 5 min to remove impurities and remnants. Impurities and remnants go to the pellet.
-
-14. Transfer the RNA-containing supernatant to a clean microfuge tube and store it at -80 °C for later analysis.

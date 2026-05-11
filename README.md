@@ -1,751 +1,329 @@
+# Bio-Protocol to Robotic API
 
-# Bio-Protocol to Lab-API Workflow System
+Version: v1.6
 
-## 1. 项目简介
+## Project Overview
 
-本项目用于将自然语言实验协议（Bio-Protocol / Lab Protocol）转换为本地实验室机器人可执行的 API 工作流，并在执行前后完成校验、修复、执行仿真与基准测试。
+Bio-Protocol to Robotic API is a prototype system for converting natural-language biology protocols into structured robotic laboratory API workflows. The system parses protocol text, grounds parsed steps into registered API calls, validates the resulting workflow against a symbolic lab state, optionally repairs invalid workflows, and writes detailed benchmark/debug artifacts for inspection.
 
-系统的核心目标包括：
+The current v1.6 focus is benchmark-driven evaluation of protocol-to-API grounding, including fine-grained robotic API cases that explicitly model robot navigation, dual-arm manipulation, object grasp/place actions, cap handling, pipette tip lifecycle, liquid volume accounting, and final lab-state checks.
 
-1. 将实验文本解析为结构化步骤（Parsed Protocol）
-2. 将结构化步骤映射为实验室 API 调用序列（Workflow）
-3. 对工作流进行合法性校验与自动修复
-4. 在虚拟实验室状态机中执行工作流
-5. 对测试集进行批量 benchmark，输出准确率、可执行率与修复统计
-
-当前系统支持两类主要运行模式：
-
-- 普通模式：parser → grounder → validator → repair → executor
-- operation 模式：先按 operation 切分，再逐组 parser / grounder，最后由 planner 合并为最终 workflow
-
----
-
-## 2. 系统整体流程
-
-### 2.1 单次运行流程
+High-level pipeline:
 
 ```text
-Protocol Text
-    ↓
-Operation Splitter（默认开启）
-    ↓
-Operation-level Parser
-    ↓
-Operation-level Grounder
-    ↓
-Planner（合并各 operation 的 API 组）
-    ↓
-Validator
-    ↓
-Rule Repair
-    ↓
-LLM Repair（可选）
-    ↓
-Executor
-    ↓
-Run Outputs / Summary Report
-````
-
-### 2.2 Benchmark 流程
-
-```text
-Benchmark Case
-    ↓
-Parser
-    ↓
-Grounder
-    ↓
-Validator
-    ↓
-Rule Repair
-    ↓
-LLM Repair（可选）
-    ↓
-Executor
-    ↓
-Case Evaluation
-    ↓
-Summary Statistics
+Protocol text
+  -> Parser
+  -> LLM/API grounding
+  -> Workflow planner
+  -> Validator and simulator
+  -> Optional repair
+  -> Benchmark comparison
+  -> Run artifacts
 ```
 
----
+## What Is New In v1.6
 
-## 3. 项目特点
+- Added benchmark cases through `case10`.
+- Added hard fine-grained dual-arm robotic API benchmark design.
+- Added `case9`, a long fine-grained colorimetric assay case used to stress-test output length and detailed state tracking.
+- Added `case10`, a compact fine-grained case with about 50 expected API calls, designed to test detailed API planning without exceeding typical LLM output limits.
+- Updated benchmark case layout under `tests/benchmark/`.
+- Added case-specific API domain, lab state, safety rule, expected API sequence, and expected final state files.
+- Added current-format safety rules using `metadata / bindings / conditions / effect_on_validation`.
+- Benchmark outputs now include detailed API sequence diff, final-state comparison, LLM parser/grounder raw and parsed outputs, validation results, and per-case summary files.
 
-### 3.1 规则后端与 LLM 后端混合设计
-
-Parser、Grounder、Planner、Repair 都支持可选的 LLM 路径。
-当 LLM 关闭、调用失败、输出 JSON 不合法或 schema 校验不通过时，系统会回退到规则路径或 fallback 逻辑。
-
-### 3.2 支持 operation 级处理
-
-系统可以将复杂协议按行切分为多个 operation，逐组完成解析与映射，再由 planner 合并为一个最终可执行 workflow。
-这种设计适合较长协议、分段式 protocol，以及需要保留中间调试信息的场景。
-
-### 3.3 支持工作流合法性校验与自动修复
-
-系统在执行前会对 workflow 做规则检查，包括：
-
-* API 是否存在
-* 必需参数是否缺失
-* 顺序是否违规
-* 前置条件是否满足
-
-若存在问题，系统会优先执行 rule repair；若问题仍未解决，可继续启用 LLM repair。
-
-### 3.4 支持虚拟实验室执行
-
-系统内置 executor，可在虚拟实验室状态机中逐条执行 API 调用，并输出：
-
-* 执行事件流
-* 最终状态
-* 每一步调用后的状态快照
-
-### 3.5 支持 benchmark 评测
-
-系统支持批量读取测试用例，对解析、映射、顺序、参数、最终状态与执行成功率进行评估，并输出汇总统计结果。
-
----
-
-## 4. 项目目录结构
+## Project Structure
 
 ```text
 project_root/
-├─ main.py
-├─ src/
-│  ├─ models/
-│  │  └─ contracts.py
-│  ├─ pipeline/
-│  │  ├─ llm_parser.py
-│  │  ├─ llm_grounder.py
-│  │  ├─ llm_planner.py
-│  │  ├─ llm_repair.py
-│  │  ├─ validator.py
-│  │  ├─ repair.py
-│  │  ├─ executor.py
-│  │  ├─ benchmark_runner.py
-│  │  ├─ operation_splitter.py
-│  │  ├─ operation_orchestrator.py
-│  │  ├─ workflow_planner.py
-│  │  ├─ mock_parser.py
-│  │  └─ mock_grounder.py
-│  └─ utils/
-│     └─ io.py
-├─ configs/
-│  ├─ api_registry.yaml
-│  ├─ initial_lab_state.yaml
-│  ├─ benchmark_config.yaml
-│  ├─ llm_parser_config.yaml
-│  ├─ llm_grounder_config.yaml
-│  ├─ llm_planner_config.yaml
-│  ├─ llm_repair_config.yaml
-│  ├─ llm_parser_notice.txt
-│  ├─ llm_grounder_notice.txt
-│  ├─ llm_planner_notice.txt
-│  └─ llm_repair_notice.txt
-├─ tests/
-│  └─ cases/
-└─ runs/
-   ├─ wf_xxxxxxxx/
-   └─ benchmark_YYYYMMDD_HHMMSS/
+|-- main.py
+|-- README.md
+|-- requirements.txt
+|-- configs/
+|   |-- api_registry.yaml
+|   |-- benchmark_config.yaml
+|   |-- initial_lab_state.yaml
+|   |-- llm_grounding_config.yaml
+|   |-- llm_parser_config.yaml
+|   |-- llm_repair_config.yaml
+|   `-- validator_config.yaml
+|-- schemas/
+|   |-- llm_grounding_input.schema.json
+|   |-- llm_grounding_output.schema.json
+|   |-- llm_parser_input.schema.json
+|   |-- llm_parser_output.schema.json
+|   |-- llm_repair_input.schema.json
+|   |-- llm_repair_output.schema.json
+|   |-- parsed_protocol.schema.json
+|   `-- workflow.schema.json
+|-- src/
+|   |-- models/
+|   |   `-- contracts.py
+|   |-- pipeline/
+|   |   |-- benchmark_runner.py
+|   |   |-- domain_simulator.py
+|   |   |-- executor.py
+|   |   |-- llm_grounder.py
+|   |   |-- llm_parser.py
+|   |   |-- llm_repair.py
+|   |   |-- repair.py
+|   |   |-- unit_normalizer.py
+|   |   |-- validator.py
+|   |   `-- workflow_planner.py
+|   `-- utils/
+|       `-- io.py
+|-- tests/
+|   `-- benchmark/
+|       |-- case1/
+|       |-- ...
+|       |-- case9/
+|       `-- case10/
+`-- runs/
+    `-- benchmark_YYYYMMDD_HHMMSS/
 ```
 
----
+## Benchmark Cases
 
-## 5. 核心文件说明
+Each benchmark case lives in its own directory:
 
-### 5.1 `main.py`
+```text
+tests/benchmark/caseN/
+|-- benchmark_case.yaml
+|-- api_domain.yaml
+|-- lab_state.yaml
+`-- safty_rule.yaml
+```
 
-项目命令行主入口，基于 Typer 实现，提供以下命令：
+`benchmark_case.yaml` contains:
 
-* `run`：执行单条实验协议
-* `version`：输出版本号
-* `benchmark`：运行批量测试
+- `case_id`
+- `difficulty`
+- `domain`
+- `input_text`
+- `expected_api_sequence`
+- `expected_final_state`
+- `expected_success`
+- optional feature tags such as `hard_features`
 
-`run` 支持：
+`api_domain.yaml` declares available API actions, parameters, preconditions, and effects.
 
-* 文本输入或文件输入
-* 启用/关闭 validator
-* 启用/关闭 rule repair
-* 启用/关闭 LLM repair
-* 启用/关闭 LLM parser
-* 启用/关闭 LLM grounder
-* 启用/关闭 LLM planner
-* 启用/关闭 operation mode
+`lab_state.yaml` declares the initial symbolic lab state, including object locations, container states, cap relations, tip states, paths, and numeric fluents.
 
-### 5.2 `operation_splitter.py`
+`safty_rule.yaml` contains optional safety rules. In v1.6 these rules should use the simulator-supported format:
 
-将原始实验协议按行切分为 operation 列表，并记录：
+```yaml
+- rule_id: example_rule
+  metadata:
+    scope: pre_call
+    trigger_api: some_api
+  bindings:
+    target:
+      from: call.args.target
+      required: true
+  conditions:
+    all:
+      - kind: predicate_exists
+        predicate: container_closed
+        args:
+          container: "$target"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Example validation message."
+```
 
-* `operation_id`
-* `raw_text`
-* `line_no`
-* `section_hint`
-* `is_section_header`
+## Fine-Grained API Benchmarking
 
-该模块是 operation 模式的基础。
+v1.6 introduces harder fine-grained benchmark cases for robotic lab execution.
 
-### 5.3 `operation_orchestrator.py`
+The fine-grained API style includes actions such as:
 
-负责编排 operation 级 parser 和 grounder 流程，包含两个核心过程：
+- `move_robot`
+- `grasp_object`
+- `place_object`
+- `label_container`
+- `unscrew_cap`
+- `screw_cap`
+- `attach_tip_to_pipette`
+- `aspirate_liquid`
+- `dispense_liquid`
+- `eject_tip`
+- `dispense_drops`
+- `shake_container`
+- `stand_at_room_temperature`
 
-* `run_operation_parser_pass`
-* `run_operation_grounder_pass`
+These cases test whether a model can preserve physical state across many small operations rather than relying on coarse actions such as a single `transfer`.
 
-其职责包括：
+### Case9
 
-* 逐组调用 parser
-* 逐组调用 grounder
-* 汇总 operation 级中间结果
-* 展平步骤结果
-* 统计 LLM 调用情况
-* 汇总未注册 API 信息
+`case9` is a long hard case for a dual-arm biuret/colorimetric workflow. It includes sample and blank tubes, multiple reagent containers, cap handling, fresh tips, drop addition, mixing, standing, and final reagent-container closeout.
 
-### 5.4 `llm_parser.py`
+It is useful as a stress test, but current runs show that very long fine-grained outputs can exceed LLM output limits and produce invalid or truncated JSON.
 
-负责将自然语言实验协议解析为结构化步骤。
+### Case10
 
-主要功能包括：
+`case10` is a compact hard case with 50 expected API calls. It keeps the fine-grained dual-arm style while reducing total output length. It is intended for checking whether the model can handle detailed state transitions such as:
 
-* 文本预处理
-* 单位标准化（如 `μL → uL`、`°C → C`）
-* 句子切分
-* parser 质量分析
-* LLM 输入构造
-* LLM 输出解析与 schema 校验
-* fallback 到规则 parser
+- opening the target tube before dispensing,
+- keeping pipette/tip state consistent,
+- ejecting tips only after successful dispense,
+- closing containers before mixing/standing,
+- returning the robot and objects to expected final states.
 
-输出的结构化结果通常包含：
+Recent case10 runs show that the LLM can produce a valid fine-grained workflow with high API-name coverage, but it may still fail validation when it skips required opening/closing steps or breaks tip/liquid state consistency.
 
-* `step_id`
-* `raw_text`
-* `action`
-* `entities`
-* `parameters`
+## CLI Usage
 
-### 5.5 `llm_grounder.py`
-
-负责将 Parsed Protocol 映射为 API Workflow。
-
-主要功能包括：
-
-* 读取 API registry
-* 读取实验室状态
-* 构造 grounder 输入
-* 调用 LLM 或规则 grounder
-* 检查 workflow 结构合法性
-* 检查是否存在未注册 API
-* 输出标准 workflow 结构
-
-### 5.6 `llm_planner.py`
-
-负责将多个 operation 的 API 组整合为一个最终 workflow。
-
-主要功能包括：
-
-* 合并 operation-level API groups
-* 去除冗余动作
-* 合并相邻可优化步骤
-* 自动补全隐藏但必要的操作
-* 输出扁平化的最终 `workflow.api_calls`
-
-### 5.7 `validator.py`
-
-负责对 workflow 执行规则校验。
-
-主要检查内容包括：
-
-* API 是否在 registry 中存在
-* 必需参数是否缺失
-* 调用顺序是否正确
-* 前置条件是否满足
-
-典型校验规则示例：
-
-* `fridge.close` 不能先于 `fridge.open`
-* `pipette.transfer` 前需要 `pipette.attach_tip`
-* 对 tube 转移或 mix 前，tube 需要先 uncapped
-* 某些 heater 操作需要满足先设定温度等前置条件
-
-输出通常包括：
-
-* `valid`
-* `issue_count`
-* `issues`
-
-### 5.8 `llm_repair.py`
-
-负责在 rule repair 后，对剩余 unresolved issue 进行可选的 LLM 修复。
-
-主要功能包括：
-
-* 判断是否应该触发 LLM repair
-* 构造最小修复输入
-* 解析 LLM 输出的 patch operations
-* 校验 patch 是否合法
-* 将 patch 应用于 workflow
-* 再次执行 validator，判断是否接受补丁
-
-### 5.9 `executor.py`
-
-负责执行最终 workflow。
-
-主要功能包括：
-
-* 读取初始实验室状态
-* 逐条执行 API 调用
-* 生成执行事件
-* 保存执行过程中的状态快照
-* 输出最终状态
-* 如果某一步失败，则中断执行并返回失败结果
-
-当前 executor 已实现一组基础实验室 API，例如：
-
-* `fridge.open`
-* `fridge.close`
-* `robot.pick`
-* `robot.place`
-* `tube.uncap`
-* `tube.cap`
-* `pipette.attach_tip`
-* `pipette.transfer`
-* `pipette.mix`
-* `pipette.discard_tip`
-* `heater.set_temperature`
-* `heater.place`
-* `heater.remove`
-* `timer.wait`
-
-### 5.10 `benchmark_runner.py`
-
-负责批量 benchmark。
-
-主要功能包括：
-
-* 读取测试用例 YAML 文件
-* 对每个 case 运行 parser / grounder / repair / execution
-* 进行 parsing / grounding / parameter / sequence / final_state 等评测
-* 统计修复成功情况
-* 统计 LLM 调用与成功情况
-* 输出 benchmark 汇总与每个 case 的详细结果
-
----
-
-## 6. CLI 命令
-
-### 6.1 查看版本
+### Show Version
 
 ```bash
 python main.py version
 ```
 
-### 6.2 直接输入文本运行
+Expected project version for this README:
 
-```bash
-python main.py run --text "Take the sample tube from the fridge. Add 0.1 mL buffer to the sample tube. Incubate at 37C for 10 min."
+```text
+bio-protocol v1.6
 ```
 
-### 6.3 从文件运行
+### Run A Single Protocol
+
+```bash
+python main.py run --text "Label sample_tube. Add 1000 uL sample solution. Mix for 5 seconds."
+```
+
+or:
 
 ```bash
 python main.py run --file test.txt
 ```
 
-### 6.4 指定标题
+Common options:
 
-```bash
-python main.py run --file test.txt --title "Demo Protocol"
-```
+- `--text`: raw protocol text.
+- `--file`: protocol file path, currently `.txt` and `.md`.
+- `--title`: protocol title.
+- `--enable-validator`: run validation before execution.
+- `--enable-repair`: enable rule-based repair.
+- `--enable-llm-repair`: enable LLM repair for unresolved issues.
+- `--enable-llm-parser`: enable LLM-primary parsing.
+- `--enable-llm-grounding`: enable LLM-primary grounding.
 
-### 6.5 启用 LLM parser / grounder / planner / repair
-
-```bash
-python main.py run \
-  --file test.txt \
-  --enable-llm-parser \
-  --enable-llm-grounder \
-  --enable-llm-planner \
-  --enable-llm-repair
-```
-
-### 6.6 关闭 operation mode
-
-```bash
-python main.py run --file test.txt --enable-operation-mode False
-```
-
-### 6.7 运行 benchmark
+### Run Benchmark
 
 ```bash
 python main.py benchmark
 ```
 
-### 6.8 指定 benchmark case 目录
+or explicitly:
 
 ```bash
-python main.py benchmark --cases-dir tests/cases
+python main.py benchmark --cases-dir tests/benchmark
 ```
 
-### 6.9 benchmark 中启用 LLM 能力
-
-```bash
-python main.py benchmark \
-  --enable-llm-parser \
-  --enable-llm-grounder \
-  --enable-llm-repair
-```
-
----
-
-## 7. 单次运行输出说明
-
-单次 `run` 执行结束后，系统会在如下目录生成输出文件：
+Benchmark configuration defaults are loaded from:
 
 ```text
-runs/<workflow_id>/
+configs/benchmark_config.yaml
 ```
 
-### 7.1 输入与 operation 分组相关
+Current default benchmark directory:
 
-#### `protocol_input.json`
+```text
+tests/benchmark
+```
 
-保存本次输入协议的原始信息，包括 protocol id、标题、原始文本和来源。
-
-#### `operations.json`
-
-当 operation mode 开启时生成。
-保存协议按行切分后的 operation 列表。
-
-#### `operation_parser_groups.json`
-
-当 operation mode 开启时生成。
-保存每个 operation 的 parser 结果，包括原始文本、预处理信息、LLM parser 信息与解析后的步骤。
-
-#### `operation_grounder_groups.json`
-
-当 operation mode 开启时生成。
-保存每个 operation 的 grounder 结果，包括 workflow、API 调用组、grounding 校验信息与 LLM grounder 信息。
-
-#### `operation_api_groups.json`
-
-当 operation mode 开启时生成。
-保存各 operation 对应的 API 调用组，供 planner 使用。
-
-### 7.2 Parser 相关文件
-
-#### `parser_preprocess.json`
-
-保存 parser 预处理信息，例如文本标准化、替换次数、长度变化、是否截断等。
-
-#### `llm_parser_result.json`
-
-保存 parser 后端的运行情况，例如是否启用 LLM、是否 fallback、失败原因等。
-
-#### `llm_parser_input.json`
-
-保存发送给 LLM parser 的输入内容。
-
-#### `llm_parser_raw_output.json`
-
-保存 LLM parser 的原始输出。
-
-#### `llm_parser_parsed_output.json`
-
-保存解析后的结构化 LLM parser 输出。
-
-### 7.3 Grounder 相关文件
-
-#### `grounding_result.json`
-
-保存 grounder 的总体结果，包括 backend mode、是否有效、是否包含未注册 API、失败原因等。
-
-#### `grounding_validation_result.json`
-
-保存对 grounder 输出进行结构和 registry 校验后的结果。
-
-#### `llm_grounder_input.json`
-
-保存发送给 LLM grounder 的输入内容。
-
-#### `llm_grounder_raw_output.json`
-
-保存 LLM grounder 的原始输出。
-
-#### `llm_grounder_parsed_output.json`
-
-保存归一化后的 grounder 输出。
-
-### 7.4 Planner 相关文件
-
-#### `planner_result.json`
-
-保存 planner 的总体结果，包括是否启用 LLM planner、是否接受 planner 输出、是否合法等。
-
-#### `planner_validation_result.json`
-
-保存 planner 输出的 workflow 校验结果。
-
-#### `llm_planner_input.json`
-
-保存发送给 LLM planner 的输入内容。
-
-#### `llm_planner_raw_output.json`
-
-保存 LLM planner 的原始输出。
-
-#### `llm_planner_parsed_output.json`
-
-保存解析后的 planner 输出结果。
-
-### 7.5 Workflow 与修复相关文件
-
-#### `parsed_protocol.json`
-
-保存最终解析得到的结构化 protocol。
-
-#### `grounded_workflow.json`
-
-保存 grounder 输出的 workflow。
-
-#### `workflow.json`
-
-保存最终进入执行阶段的 workflow。
-
-#### `validation_before_rule_repair.json`
-
-保存规则修复前的校验结果。
-
-#### `validation_result.json`
-
-保存最终 workflow 的校验结果。
-
-#### `repair_result.json`
-
-保存 rule repair 的执行结果和修复记录。
-
-#### `llm_input.json`
-
-保存发送给 LLM repair 的输入内容。
-
-#### `llm_raw_output.json`
-
-保存 LLM repair 的原始输出。
-
-#### `llm_parsed_output.json`
-
-保存解析后的 LLM repair patch 内容。
-
-#### `workflow_before_llm_patch.json`
-
-保存应用 LLM patch 之前的 workflow。
-
-#### `workflow_after_llm_patch.json`
-
-保存应用 LLM patch 之后的 workflow。
-
-#### `llm_patch_result.json`
-
-保存 LLM repair 是否调用、是否成功解析、是否应用补丁、是否接受补丁、失败原因等信息。
-
-#### `llm_validation_result.json`
-
-保存 LLM patch 前后 validation issue 数量变化情况。
-
-### 7.6 执行结果相关文件
-
-#### `execution_result.json`
-
-保存执行结果，包括：
-
-* 是否执行成功
-* 已执行调用数
-* 执行事件列表
-* 最终状态
-* 状态快照
-
-#### `final_state.json`
-
-保存执行结束后的实验室状态。
-
-#### `state_snapshots.json`
-
-保存每一步 API 调用后的状态快照。
-
-### 7.7 文本摘要文件
-
-#### `summary_report.md`
-
-保存本次运行的 Markdown 摘要报告，便于快速查看：
-
-* Protocol ID
-* Workflow ID
-* Executed Calls
-* Success
-* Validation 情况
-* Repair 情况
-* Parser / Grounder / Planner / LLM Repair 状态
-* 最终 workflow 中的 API 列表
-
----
-
-## 8. Benchmark 输出说明
-
-benchmark 输出目录通常为：
+Benchmark outputs are written to:
 
 ```text
 runs/benchmark_YYYYMMDD_HHMMSS/
 ```
 
-### 8.1 总体输出文件
+## Output Artifacts
 
-#### `benchmark_summary.json`
+For each benchmark case, the runner writes a dedicated output directory containing files such as:
 
-保存 benchmark 的核心汇总统计信息，包括：
+- `benchmark_case.json`
+- `case_context.json`
+- `protocol_input.json`
+- `parser_preprocess.json`
+- `parsed_protocol.json`
+- `llm_parser_result.json`
+- `llm_parser_input.json`
+- `llm_parser_raw_output.json`
+- `llm_parser_parsed_output.json`
+- `grounding_result.json`
+- `grounding_validation_result.json`
+- `llm_grounding_input.json`
+- `llm_grounding_raw_output.json`
+- `llm_grounding_parsed_output.json`
+- `workflow_before_repair.json`
+- `workflow.json`
+- `actual_api_sequence.json`
+- `expected_api_sequence.json`
+- `api_sequence_diff.json`
+- `validation_before_repair.json`
+- `validation_result.json`
+- `repair_result.json`
+- `simulated_final_state.json`
+- `expected_final_state.json`
+- `final_state_check.json`
+- `case_result.json`
 
-* 总 case 数
-* 通过 case 数
-* parsing accuracy
-* grounding accuracy
-* parameter accuracy
-* sequence accuracy
-* executability rate
-* pass rate
-* precondition violation 数量
-* repair 统计
-* LLM repair 统计
-* parser LLM 统计
-* grounding LLM 统计
-* case 结果摘要列表
+The most important per-case summary is:
 
-#### `repair_debug.json`
-
-保存 benchmark 中 repair 相关调试记录。
-
-#### `summary_report.md`
-
-保存 benchmark 的 Markdown 汇总报告。
-
-### 8.2 单个 case 输出文件
-
-每个 case 的输出目录下通常包括：
-
-* `parsed_protocol.json`
-* `grounded_workflow.json`
-* `workflow.json`
-* `validation_before.json`
-* `validation_after.json`
-* `repair_result.json`
-* `execution_result.json`
-* `case_result.json`
-* `llm_*` 调试文件
-* `workflow_before_llm_patch.json`
-* `workflow_after_llm_patch.json`
-
-其中 `case_result.json` 是单个测试用例最核心的摘要文件，通常包含：
-
-* `case_id`
-* `success`
-* `checks`
-* `details`
-* `failure_reasons`
-
----
-
-## 9. 配置文件说明
-
-系统依赖以下配置文件：
-
-* `configs/api_registry.yaml`
-* `configs/initial_lab_state.yaml`
-* `configs/benchmark_config.yaml`
-* `configs/llm_parser_config.yaml`
-* `configs/llm_grounder_config.yaml`
-* `configs/llm_planner_config.yaml`
-* `configs/llm_repair_config.yaml`
-* `configs/llm_parser_notice.txt`
-* `configs/llm_grounder_notice.txt`
-* `configs/llm_planner_notice.txt`
-* `configs/llm_repair_notice.txt`
-
-各配置文件作用如下：
-
-### `api_registry.yaml`
-
-定义系统支持的 API 及其参数约束。
-
-### `initial_lab_state.yaml`
-
-定义虚拟实验室的初始状态。
-
-### `benchmark_config.yaml`
-
-定义 benchmark 的测试集目录、输出目录等参数。
-
-### `llm_parser_config.yaml`
-
-定义 parser 所使用的 LLM provider、model、temperature、timeout 等参数。
-
-### `llm_grounder_config.yaml`
-
-定义 grounder 所使用的 LLM 配置。
-
-### `llm_planner_config.yaml`
-
-定义 planner 所使用的 LLM 配置。
-
-### `llm_repair_config.yaml`
-
-定义 repair 所使用的 LLM 配置。
-
-### `llm_*_notice.txt`
-
-用于补充各阶段的提示信息或约束说明。
-
----
-
-## 10. 环境依赖
-
-项目至少依赖以下 Python 包：
-
-* `typer`
-* `pyyaml`
-* `pydantic`
-
-安装示例：
-
-```bash
-pip install typer pyyaml pydantic
+```text
+case_result.json
 ```
 
-若启用 LLM 路径，需要配置相应环境变量。
+It records:
 
-以 DeepSeek 为例：
+- pass/fail result,
+- parser/grounding/validation/sequence/parameter/final-state checks,
+- repair count,
+- score,
+- actual and expected API counts,
+- failure reasons,
+- detailed metrics.
 
-```bash
-export DEEPSEEK_API_KEY=your_key
-```
+The benchmark root also contains:
 
-Windows PowerShell：
+- `benchmark_summary.json`
+- `summary_report.md`
 
-```powershell
-$env:DEEPSEEK_API_KEY="your_key"
-```
+## Metrics
 
----
+The benchmark runner currently reports:
 
-## 11. 当前系统能力概述
+- `sequence_accuracy`: API-name sequence match rate.
+- `parameter_accuracy`: expected argument match rate.
+- `final_state_accuracy`: expected final predicates/functions match rate.
+- `score`: average of sequence, parameter, and final-state accuracy.
+- `pass_rate`: percentage of cases that fully pass.
+- difficulty-weighted summary across Easy, Medium, and Hard cases.
 
-当前系统已经具备以下完整能力链路：
+A case passes only when all major checks pass:
 
-* 协议解析
-* API 映射
-* operation 级编排
-* workflow 合并规划
-* 规则校验
-* 自动修复
-* 执行仿真
-* benchmark 评测
+- parser produced steps,
+- grounding is valid,
+- workflow validation is valid,
+- API sequence matches,
+- parameters match,
+- final state matches.
 
-项目整体上已经形成一个可运行、可调试、可评测、可扩展的实验协议自动化处理框架，可作为课程项目、原型系统或后续扩展开发的基础。
+## Current Known Limitations
 
+- Very long fine-grained workflows can cause LLM grounding output to be truncated, leading to invalid JSON and an empty workflow.
+- The benchmark currently relies on exact or near-exact API and parameter matching, so harmless parameter choices such as different tolerances or release heights can reduce parameter accuracy.
+- Fine-grained state planning remains challenging: models may generate plausible API names while missing critical state transitions such as opening a tube before dispensing or keeping pipette-loaded volume consistent.
+- Safety-rule support in the simulator is currently focused on pre-call checks using `metadata / bindings / conditions`; broader rule forms such as after-action uniqueness checks are not fully interpreted yet.
+- Some internal code paths still carry historical naming such as `safty_rule.yaml`.
 
+## Development Notes
+
+The project currently has no guaranteed configured runtime environment in this workspace. Static inspection and file-based benchmark analysis are often possible without running the full pipeline, but complete execution requires installing the dependencies from `requirements.txt` and configuring any required LLM provider credentials.
+
+## License
+
+No license information has been specified yet.

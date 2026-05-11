@@ -1,0 +1,1609 @@
+case_id: bio_lab_protocol_009_hard_dual_arm_biuret
+difficulty: Hard
+domain: bio_lab_colorimetric_dual_arm_api
+lab_state: lab_state.yaml
+safety_rules: safty_rule.yaml
+
+input_text: >
+  A dual-arm robot is located at bench_center. The robot has a left hand and a
+  right hand. Each hand can hold at most one object at a time. The sample_tube is
+  placed in rack_slot_A1 on bench_center. The blank_tube is placed in
+  rack_slot_A2 on bench_center. The sample_solution_tube is placed in
+  reagent_slot_B1 on bench_left. The distilled_water_tube is placed in
+  reagent_slot_B2 on bench_left. The sodium_hydroxide_tube is placed in
+  reagent_slot_B3 on bench_left. The copper_sulfate_tube is placed in
+  reagent_slot_B4 on bench_left. The pipette is placed in pipette_slot_P1 on
+  bench_right. Four clean tips are placed in tip_slot_T1 to tip_slot_T4 on
+  bench_right. The waste container is placed in waste_slot_W1 on waste_area.
+  Label sample_tube as sample_label and blank_tube as blank_label. Open
+  sample_tube, blank_tube, sample_solution_tube, distilled_water_tube,
+  sodium_hydroxide_tube, and copper_sulfate_tube. Use a fresh tip to transfer
+  2000 uL of sample solution into sample_tube. Use a fresh tip to transfer
+  2000 uL of distilled water into blank_tube. Use fresh tips to add 2000 uL of
+  sodium hydroxide solution into each labeled tube. Cap sample_tube and
+  blank_tube. Mix each labeled tube gently for 5 seconds. Reopen sample_tube and
+  blank_tube. Move the copper sulfate dropper bottle to bench_center. Add
+  3 drops of copper sulfate solution into sample_tube and 3 drops into
+  blank_tube. Return the copper sulfate dropper bottle to reagent_slot_B4.
+  Cap both labeled tubes again. Mix both labeled tubes gently for 5 seconds.
+  Let both tubes stand at room temperature for 2 minutes. Finally, close all
+  reagent containers and leave the robot with both hands empty.
+
+expected_api_sequence:
+
+  - api: label_container
+    args:
+      robot: robot1
+      container: sample_tube
+      label: sample_label
+      location: bench_center
+      slot: rack_slot_A1
+
+  - api: label_container
+    args:
+      robot: robot1
+      container: blank_tube
+      label: blank_label
+      location: bench_center
+      slot: rack_slot_A2
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sample_tube
+      cap: sample_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sample_tube_cap
+      location: bench_center
+      slot: cap_slot_C1
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: blank_tube
+      cap: blank_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: blank_tube_cap
+      location: bench_center
+      slot: cap_slot_C2
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      release_height_mm: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: bench_left
+      path: path_center_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_solution_tube
+      location: bench_left
+      slot: reagent_slot_B1
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sample_solution_tube
+      cap: sample_solution_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sample_solution_cap
+      location: bench_left
+      slot: cap_slot_C3
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_solution_tube
+      location: bench_left
+      slot: reagent_slot_B1
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: distilled_water_tube
+      location: bench_left
+      slot: reagent_slot_B2
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: distilled_water_tube
+      cap: distilled_water_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: distilled_water_cap
+      location: bench_left
+      slot: cap_slot_C4
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: distilled_water_tube
+      location: bench_left
+      slot: reagent_slot_B2
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sodium_hydroxide_tube
+      location: bench_left
+      slot: reagent_slot_B3
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sodium_hydroxide_tube
+      cap: sodium_hydroxide_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sodium_hydroxide_cap
+      location: bench_left
+      slot: cap_slot_C5
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sodium_hydroxide_tube
+      location: bench_left
+      slot: reagent_slot_B3
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: copper_sulfate_tube
+      location: bench_left
+      slot: reagent_slot_B4
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: copper_sulfate_tube
+      cap: copper_sulfate_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: copper_sulfate_cap
+      location: bench_left
+      slot: cap_slot_C6
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: copper_sulfate_tube
+      location: bench_left
+      slot: reagent_slot_B4
+      release_height_mm: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_right
+      path: path_left_to_right
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: pipette1
+      location: bench_right
+      slot: pipette_slot_P1
+      grasp_type: side_grasp
+      approach_direction: front
+      grip_force_n: 8
+
+  - api: attach_tip_to_pipette
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip1
+      tip_location: bench_right
+      tip_slot: tip_slot_T1
+      press_depth_mm: 8
+      press_force_n: 10
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_right
+      to_location: bench_left
+      path: path_right_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: aspirate_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip1
+      source: sample_solution_tube
+      liquid: sample_solution
+      volume_ul: 2000
+      aspiration_rate_ul_per_s: 200
+      tip_depth_mm: 3
+      source_location: bench_left
+      source_slot: reagent_slot_B1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: dispense_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip1
+      target: sample_tube
+      liquid: sample_solution
+      volume_ul: 2000
+      dispense_rate_ul_per_s: 300
+      tip_position: inner_wall
+      blow_out: true
+      touch_off: true
+      target_location: bench_center
+      target_slot: rack_slot_A1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: waste_area
+      path: path_center_to_waste
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: eject_tip
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip1
+      waste_container: waste_container1
+      waste_location: waste_area
+      waste_slot: waste_slot_W1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: waste_area
+      to_location: bench_right
+      path: path_waste_to_right
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: attach_tip_to_pipette
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip2
+      tip_location: bench_right
+      tip_slot: tip_slot_T2
+      press_depth_mm: 8
+      press_force_n: 10
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_right
+      to_location: bench_left
+      path: path_right_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: aspirate_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip2
+      source: distilled_water_tube
+      liquid: distilled_water
+      volume_ul: 2000
+      aspiration_rate_ul_per_s: 200
+      tip_depth_mm: 3
+      source_location: bench_left
+      source_slot: reagent_slot_B2
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: dispense_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip2
+      target: blank_tube
+      liquid: distilled_water
+      volume_ul: 2000
+      dispense_rate_ul_per_s: 300
+      tip_position: inner_wall
+      blow_out: true
+      touch_off: true
+      target_location: bench_center
+      target_slot: rack_slot_A2
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: waste_area
+      path: path_center_to_waste
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: eject_tip
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip2
+      waste_container: waste_container1
+      waste_location: waste_area
+      waste_slot: waste_slot_W1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: waste_area
+      to_location: bench_right
+      path: path_waste_to_right
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: attach_tip_to_pipette
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip3
+      tip_location: bench_right
+      tip_slot: tip_slot_T3
+      press_depth_mm: 8
+      press_force_n: 10
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_right
+      to_location: bench_left
+      path: path_right_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: aspirate_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip3
+      source: sodium_hydroxide_tube
+      liquid: sodium_hydroxide
+      volume_ul: 2000
+      aspiration_rate_ul_per_s: 200
+      tip_depth_mm: 3
+      source_location: bench_left
+      source_slot: reagent_slot_B3
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: dispense_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip3
+      target: sample_tube
+      liquid: sodium_hydroxide
+      volume_ul: 2000
+      dispense_rate_ul_per_s: 300
+      tip_position: inner_wall
+      blow_out: true
+      touch_off: true
+      target_location: bench_center
+      target_slot: rack_slot_A1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: waste_area
+      path: path_center_to_waste
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: eject_tip
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip3
+      waste_container: waste_container1
+      waste_location: waste_area
+      waste_slot: waste_slot_W1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: waste_area
+      to_location: bench_right
+      path: path_waste_to_right
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: attach_tip_to_pipette
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip4
+      tip_location: bench_right
+      tip_slot: tip_slot_T4
+      press_depth_mm: 8
+      press_force_n: 10
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_right
+      to_location: bench_left
+      path: path_right_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: aspirate_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip4
+      source: sodium_hydroxide_tube
+      liquid: sodium_hydroxide
+      volume_ul: 2000
+      aspiration_rate_ul_per_s: 200
+      tip_depth_mm: 3
+      source_location: bench_left
+      source_slot: reagent_slot_B3
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: dispense_liquid
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip4
+      target: blank_tube
+      liquid: sodium_hydroxide
+      volume_ul: 2000
+      dispense_rate_ul_per_s: 300
+      tip_position: inner_wall
+      blow_out: true
+      touch_off: true
+      target_location: bench_center
+      target_slot: rack_slot_A2
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: waste_area
+      path: path_center_to_waste
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: eject_tip
+    args:
+      robot: robot1
+      hand: right_hand
+      pipette: pipette1
+      tip: tip4
+      waste_container: waste_container1
+      waste_location: waste_area
+      waste_slot: waste_slot_W1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: waste_area
+      to_location: bench_right
+      path: path_waste_to_right
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: pipette1
+      location: bench_right
+      slot: pipette_slot_P1
+      release_height_mm: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_right
+      to_location: bench_center
+      path: path_right_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sample_tube_cap
+      location: bench_center
+      slot: cap_slot_C1
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sample_tube
+      cap: sample_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: shake_container
+    args:
+      robot: robot1
+      hand: left_hand
+      container: sample_tube
+      location: bench_center
+      duration_sec: 5
+      intensity: gentle
+      motion_pattern: swirl
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: blank_tube_cap
+      location: bench_center
+      slot: cap_slot_C2
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: blank_tube
+      cap: blank_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: shake_container
+    args:
+      robot: robot1
+      hand: left_hand
+      container: blank_tube
+      location: bench_center
+      duration_sec: 5
+      intensity: gentle
+      motion_pattern: swirl
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sample_tube
+      cap: sample_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sample_tube_cap
+      location: bench_center
+      slot: cap_slot_C1
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: unscrew_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: blank_tube
+      cap: blank_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: blank_tube_cap
+      location: bench_center
+      slot: cap_slot_C2
+      release_height_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      release_height_mm: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: bench_left
+      path: path_center_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: copper_sulfate_tube
+      location: bench_left
+      slot: reagent_slot_B4
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: dispense_drops
+    args:
+      robot: robot1
+      hand: right_hand
+      source: copper_sulfate_tube
+      target: sample_tube
+      liquid: copper_sulfate
+      drops: 3
+      target_location: bench_center
+      target_slot: rack_slot_A1
+      tilt_angle_deg: 45
+      drop_interval_sec: 1
+
+  - api: dispense_drops
+    args:
+      robot: robot1
+      hand: right_hand
+      source: copper_sulfate_tube
+      target: blank_tube
+      liquid: copper_sulfate
+      drops: 3
+      target_location: bench_center
+      target_slot: rack_slot_A2
+      tilt_angle_deg: 45
+      drop_interval_sec: 1
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: bench_left
+      path: path_center_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: copper_sulfate_tube
+      location: bench_left
+      slot: reagent_slot_B4
+      release_height_mm: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sample_tube_cap
+      location: bench_center
+      slot: cap_slot_C1
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sample_tube
+      cap: sample_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: shake_container
+    args:
+      robot: robot1
+      hand: left_hand
+      container: sample_tube
+      location: bench_center
+      duration_sec: 5
+      intensity: gentle
+      motion_pattern: swirl
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_tube
+      location: bench_center
+      slot: rack_slot_A1
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: blank_tube_cap
+      location: bench_center
+      slot: cap_slot_C2
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: blank_tube
+      cap: blank_tube_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: shake_container
+    args:
+      robot: robot1
+      hand: left_hand
+      container: blank_tube
+      location: bench_center
+      duration_sec: 5
+      intensity: gentle
+      motion_pattern: swirl
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: blank_tube
+      location: bench_center
+      slot: rack_slot_A2
+      release_height_mm: 5
+
+  - api: stand_at_room_temperature
+    args:
+      container: sample_tube
+      duration_min: 2
+      location: bench_center
+      slot: rack_slot_A1
+
+  - api: stand_at_room_temperature
+    args:
+      container: blank_tube
+      duration_min: 2
+      location: bench_center
+      slot: rack_slot_A2
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_center
+      to_location: bench_left
+      path: path_center_to_left
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_solution_tube
+      location: bench_left
+      slot: reagent_slot_B1
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sample_solution_cap
+      location: bench_left
+      slot: cap_slot_C3
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sample_solution_tube
+      cap: sample_solution_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sample_solution_tube
+      location: bench_left
+      slot: reagent_slot_B1
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: distilled_water_tube
+      location: bench_left
+      slot: reagent_slot_B2
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: distilled_water_cap
+      location: bench_left
+      slot: cap_slot_C4
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: distilled_water_tube
+      cap: distilled_water_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: distilled_water_tube
+      location: bench_left
+      slot: reagent_slot_B2
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sodium_hydroxide_tube
+      location: bench_left
+      slot: reagent_slot_B3
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: sodium_hydroxide_cap
+      location: bench_left
+      slot: cap_slot_C5
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: sodium_hydroxide_tube
+      cap: sodium_hydroxide_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: sodium_hydroxide_tube
+      location: bench_left
+      slot: reagent_slot_B3
+      release_height_mm: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: copper_sulfate_tube
+      location: bench_left
+      slot: reagent_slot_B4
+      grasp_type: side_grasp
+      approach_direction: top
+      grip_force_n: 5
+
+  - api: grasp_object
+    args:
+      robot: robot1
+      hand: right_hand
+      object: copper_sulfate_cap
+      location: bench_left
+      slot: cap_slot_C6
+      grasp_type: pinch
+      approach_direction: top
+      grip_force_n: 3
+
+  - api: screw_cap
+    args:
+      robot: robot1
+      support_hand: left_hand
+      cap_hand: right_hand
+      container: copper_sulfate_tube
+      cap: copper_sulfate_cap
+      torque_limit_nmm: 120
+      rotation_count: 3
+
+  - api: place_object
+    args:
+      robot: robot1
+      hand: left_hand
+      object: copper_sulfate_tube
+      location: bench_left
+      slot: reagent_slot_B4
+      release_height_mm: 5
+
+  - api: move_robot
+    args:
+      robot: robot1
+      from_location: bench_left
+      to_location: bench_center
+      path: path_left_to_center
+      speed_mm_per_s: 100
+      stop_tolerance_mm: 5
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: robot_at
+      args:
+        robot: robot1
+        location: bench_center
+
+    - predicate: hand_empty
+      args:
+        robot: robot1
+        hand: left_hand
+
+    - predicate: hand_empty
+      args:
+        robot: robot1
+        hand: right_hand
+
+    - predicate: labeled
+      args:
+        container: sample_tube
+        label: sample_label
+
+    - predicate: labeled
+      args:
+        container: blank_tube
+        label: blank_label
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: sample_solution
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: sodium_hydroxide
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: copper_sulfate
+
+    - predicate: contains
+      args:
+        container: blank_tube
+        liquid: distilled_water
+
+    - predicate: contains
+      args:
+        container: blank_tube
+        liquid: sodium_hydroxide
+
+    - predicate: contains
+      args:
+        container: blank_tube
+        liquid: copper_sulfate
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: blank_tube
+
+    - predicate: container_closed
+      args:
+        container: sample_solution_tube
+
+    - predicate: container_closed
+      args:
+        container: distilled_water_tube
+
+    - predicate: container_closed
+      args:
+        container: sodium_hydroxide_tube
+
+    - predicate: container_closed
+      args:
+        container: copper_sulfate_tube
+
+    - predicate: cap_attached
+      args:
+        cap: sample_tube_cap
+        container: sample_tube
+
+    - predicate: cap_attached
+      args:
+        cap: blank_tube_cap
+        container: blank_tube
+
+    - predicate: cap_attached
+      args:
+        cap: sample_solution_cap
+        container: sample_solution_tube
+
+    - predicate: cap_attached
+      args:
+        cap: distilled_water_cap
+        container: distilled_water_tube
+
+    - predicate: cap_attached
+      args:
+        cap: sodium_hydroxide_cap
+        container: sodium_hydroxide_tube
+
+    - predicate: cap_attached
+      args:
+        cap: copper_sulfate_cap
+        container: copper_sulfate_tube
+
+    - predicate: object_at
+      args:
+        object: sample_tube
+        location: bench_center
+        slot: rack_slot_A1
+
+    - predicate: object_at
+      args:
+        object: blank_tube
+        location: bench_center
+        slot: rack_slot_A2
+
+    - predicate: object_at
+      args:
+        object: sample_solution_tube
+        location: bench_left
+        slot: reagent_slot_B1
+
+    - predicate: object_at
+      args:
+        object: distilled_water_tube
+        location: bench_left
+        slot: reagent_slot_B2
+
+    - predicate: object_at
+      args:
+        object: sodium_hydroxide_tube
+        location: bench_left
+        slot: reagent_slot_B3
+
+    - predicate: object_at
+      args:
+        object: copper_sulfate_tube
+        location: bench_left
+        slot: reagent_slot_B4
+
+    - predicate: object_at
+      args:
+        object: pipette1
+        location: bench_right
+        slot: pipette_slot_P1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: tip_used
+      args:
+        tip: tip2
+
+    - predicate: tip_used
+      args:
+        tip: tip3
+
+    - predicate: tip_used
+      args:
+        tip: tip4
+
+    - predicate: tip_discarded
+      args:
+        tip: tip1
+        waste_container: waste_container1
+
+    - predicate: tip_discarded
+      args:
+        tip: tip2
+        waste_container: waste_container1
+
+    - predicate: tip_discarded
+      args:
+        tip: tip3
+        waste_container: waste_container1
+
+    - predicate: tip_discarded
+      args:
+        tip: tip4
+        waste_container: waste_container1
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: mixed
+      args:
+        container: sample_tube
+
+    - predicate: mixed
+      args:
+        container: blank_tube
+
+    - predicate: stood
+      args:
+        container: sample_tube
+
+    - predicate: stood
+      args:
+        container: blank_tube
+
+  functions:
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      op: "=="
+      value: 4000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: blank_tube
+      op: "=="
+      value: 4000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_solution_tube
+      op: "=="
+      value: 6000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: distilled_water_tube
+      op: "=="
+      value: 6000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sodium_hydroxide_tube
+      op: "=="
+      value: 6000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sample_solution
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sodium_hydroxide
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: distilled_water
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: sodium_hydroxide
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_solution_tube
+        liquid: sample_solution
+      op: "=="
+      value: 6000
+      unit: ul
+
+    - function: volume
+      args:
+        container: distilled_water_tube
+        liquid: distilled_water
+      op: "=="
+      value: 6000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sodium_hydroxide_tube
+        liquid: sodium_hydroxide
+      op: "=="
+      value: 6000
+      unit: ul
+
+    - function: pipette_loaded_volume
+      args:
+        pipette: pipette1
+      op: "=="
+      value: 0
+      unit: ul
+
+    - function: drop_count
+      args:
+        container: sample_tube
+        liquid: copper_sulfate
+      op: "=="
+      value: 3
+      unit: drops
+
+    - function: drop_count
+      args:
+        container: blank_tube
+        liquid: copper_sulfate
+      op: "=="
+      value: 3
+      unit: drops
+
+    - function: mix_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 5
+      unit: sec
+
+    - function: mix_duration
+      args:
+        container: blank_tube
+      op: "=="
+      value: 5
+      unit: sec
+
+    - function: standing_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 2
+      unit: min
+
+    - function: standing_duration
+      args:
+        container: blank_tube
+      op: "=="
+      value: 2
+      unit: min
+
+expected_success: true
+
+hard_features:
+  - dual_arm_robot
+  - one_object_per_hand
+  - explicit_robot_navigation
+  - explicit_grasp_and_place
+  - cap_as_independent_object
+  - object_location_and_slot_tracking
+  - aspirate_dispense_split
+  - fresh_tip_per_transfer
+  - pipette_loaded_volume_tracking
+  - liquid_volume_conservation
+  - drop_based_reagent_addition
+  - closed_container_mixing
+  - room_temperature_standing

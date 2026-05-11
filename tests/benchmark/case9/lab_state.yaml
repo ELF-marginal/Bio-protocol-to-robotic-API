@@ -1,0 +1,851 @@
+lab_state_id: hard_colorimetric_dual_arm_state_009
+domain: bio_lab_colorimetric_dual_arm_api
+
+objects:
+
+  robots:
+    robot1:
+      type: dual_arm_robot
+
+  hands:
+    left_hand:
+      type: robot_hand
+    right_hand:
+      type: robot_hand
+
+  pipettes:
+    pipette1:
+      type: pipette
+
+  tips:
+    tip1:
+      type: tip
+    tip2:
+      type: tip
+    tip3:
+      type: tip
+    tip4:
+      type: tip
+
+  containers:
+    sample_tube:
+      type: tube
+    blank_tube:
+      type: tube
+    sample_solution_tube:
+      type: reagent_tube
+    distilled_water_tube:
+      type: reagent_tube
+    sodium_hydroxide_tube:
+      type: reagent_tube
+    copper_sulfate_tube:
+      type: dropper_bottle
+
+  caps:
+    sample_tube_cap:
+      type: cap
+    blank_tube_cap:
+      type: cap
+    sample_solution_cap:
+      type: cap
+    distilled_water_cap:
+      type: cap
+    sodium_hydroxide_cap:
+      type: cap
+    copper_sulfate_cap:
+      type: cap
+
+  liquids:
+    sample_solution:
+      type: sample
+    distilled_water:
+      type: buffer
+    sodium_hydroxide:
+      type: reagent
+    copper_sulfate:
+      type: reagent
+
+  devices:
+    water_bath1:
+      type: water_bath
+
+  waste_containers:
+    waste_container1:
+      type: waste_container
+
+  racks:
+    tube_rack1:
+      type: rack
+    reagent_rack1:
+      type: rack
+    cap_rack1:
+      type: rack
+    pipette_stand1:
+      type: rack
+    tip_box1:
+      type: rack
+    waste_rack1:
+      type: rack
+
+  locations:
+    bench_left:
+      type: location
+      coordinate_frame: lab_frame
+      x_mm: 200
+      y_mm: 300
+      z_mm: 0
+
+    bench_center:
+      type: location
+      coordinate_frame: lab_frame
+      x_mm: 600
+      y_mm: 300
+      z_mm: 0
+
+    bench_right:
+      type: location
+      coordinate_frame: lab_frame
+      x_mm: 1000
+      y_mm: 300
+      z_mm: 0
+
+    waste_area:
+      type: location
+      coordinate_frame: lab_frame
+      x_mm: 1200
+      y_mm: 500
+      z_mm: 0
+
+  slots:
+    rack_slot_A1:
+      type: slot
+    rack_slot_A2:
+      type: slot
+
+    reagent_slot_B1:
+      type: slot
+    reagent_slot_B2:
+      type: slot
+    reagent_slot_B3:
+      type: slot
+    reagent_slot_B4:
+      type: slot
+
+    cap_slot_C1:
+      type: slot
+    cap_slot_C2:
+      type: slot
+    cap_slot_C3:
+      type: slot
+    cap_slot_C4:
+      type: slot
+    cap_slot_C5:
+      type: slot
+    cap_slot_C6:
+      type: slot
+
+    pipette_slot_P1:
+      type: slot
+
+    tip_slot_T1:
+      type: slot
+    tip_slot_T2:
+      type: slot
+    tip_slot_T3:
+      type: slot
+    tip_slot_T4:
+      type: slot
+
+    waste_slot_W1:
+      type: slot
+
+  labels:
+    sample_label:
+      type: label
+    blank_label:
+      type: label
+
+  paths:
+    path_center_to_left:
+      type: path
+    path_left_to_center:
+      type: path
+    path_center_to_right:
+      type: path
+    path_right_to_center:
+      type: path
+    path_right_to_waste:
+      type: path
+    path_waste_to_right:
+      type: path
+    path_left_to_right:
+      type: path
+    path_right_to_left:
+      type: path
+    path_center_to_waste:
+      type: path
+    path_waste_to_center:
+      type: path
+
+init:
+
+  predicates:
+
+    - predicate: robot_at
+      args:
+        robot: robot1
+        location: bench_center
+
+    - predicate: hand_empty
+      args:
+        robot: robot1
+        hand: left_hand
+
+    - predicate: hand_empty
+      args:
+        robot: robot1
+        hand: right_hand
+
+    - predicate: path_available
+      args:
+        from_location: bench_center
+        to_location: bench_left
+        path: path_center_to_left
+
+    - predicate: path_available
+      args:
+        from_location: bench_left
+        to_location: bench_center
+        path: path_left_to_center
+
+    - predicate: path_available
+      args:
+        from_location: bench_center
+        to_location: bench_right
+        path: path_center_to_right
+
+    - predicate: path_available
+      args:
+        from_location: bench_right
+        to_location: bench_center
+        path: path_right_to_center
+
+    - predicate: path_available
+      args:
+        from_location: bench_right
+        to_location: waste_area
+        path: path_right_to_waste
+
+    - predicate: path_available
+      args:
+        from_location: waste_area
+        to_location: bench_right
+        path: path_waste_to_right
+
+    - predicate: path_available
+      args:
+        from_location: bench_left
+        to_location: bench_right
+        path: path_left_to_right
+
+    - predicate: path_available
+      args:
+        from_location: bench_right
+        to_location: bench_left
+        path: path_right_to_left
+
+    - predicate: path_available
+      args:
+        from_location: bench_center
+        to_location: waste_area
+        path: path_center_to_waste
+
+    - predicate: path_available
+      args:
+        from_location: waste_area
+        to_location: bench_center
+        path: path_waste_to_center
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_clean
+      args:
+        tip: tip1
+
+    - predicate: tip_clean
+      args:
+        tip: tip2
+
+    - predicate: tip_clean
+      args:
+        tip: tip3
+
+    - predicate: tip_clean
+      args:
+        tip: tip4
+
+    - predicate: container_clean
+      args:
+        container: sample_tube
+
+    - predicate: container_clean
+      args:
+        container: blank_tube
+
+    - predicate: container_used
+      args:
+        container: sample_solution_tube
+
+    - predicate: container_used
+      args:
+        container: distilled_water_tube
+
+    - predicate: container_used
+      args:
+        container: sodium_hydroxide_tube
+
+    - predicate: container_used
+      args:
+        container: copper_sulfate_tube
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: blank_tube
+
+    - predicate: container_closed
+      args:
+        container: sample_solution_tube
+
+    - predicate: container_closed
+      args:
+        container: distilled_water_tube
+
+    - predicate: container_closed
+      args:
+        container: sodium_hydroxide_tube
+
+    - predicate: container_closed
+      args:
+        container: copper_sulfate_tube
+
+    - predicate: cap_for
+      args:
+        cap: sample_tube_cap
+        container: sample_tube
+
+    - predicate: cap_for
+      args:
+        cap: blank_tube_cap
+        container: blank_tube
+
+    - predicate: cap_for
+      args:
+        cap: sample_solution_cap
+        container: sample_solution_tube
+
+    - predicate: cap_for
+      args:
+        cap: distilled_water_cap
+        container: distilled_water_tube
+
+    - predicate: cap_for
+      args:
+        cap: sodium_hydroxide_cap
+        container: sodium_hydroxide_tube
+
+    - predicate: cap_for
+      args:
+        cap: copper_sulfate_cap
+        container: copper_sulfate_tube
+
+    - predicate: cap_attached
+      args:
+        cap: sample_tube_cap
+        container: sample_tube
+
+    - predicate: cap_attached
+      args:
+        cap: blank_tube_cap
+        container: blank_tube
+
+    - predicate: cap_attached
+      args:
+        cap: sample_solution_cap
+        container: sample_solution_tube
+
+    - predicate: cap_attached
+      args:
+        cap: distilled_water_cap
+        container: distilled_water_tube
+
+    - predicate: cap_attached
+      args:
+        cap: sodium_hydroxide_cap
+        container: sodium_hydroxide_tube
+
+    - predicate: cap_attached
+      args:
+        cap: copper_sulfate_cap
+        container: copper_sulfate_tube
+
+    - predicate: object_at
+      args:
+        object: sample_tube
+        location: bench_center
+        slot: rack_slot_A1
+
+    - predicate: object_at
+      args:
+        object: blank_tube
+        location: bench_center
+        slot: rack_slot_A2
+
+    - predicate: object_at
+      args:
+        object: sample_solution_tube
+        location: bench_left
+        slot: reagent_slot_B1
+
+    - predicate: object_at
+      args:
+        object: distilled_water_tube
+        location: bench_left
+        slot: reagent_slot_B2
+
+    - predicate: object_at
+      args:
+        object: sodium_hydroxide_tube
+        location: bench_left
+        slot: reagent_slot_B3
+
+    - predicate: object_at
+      args:
+        object: copper_sulfate_tube
+        location: bench_left
+        slot: reagent_slot_B4
+
+    - predicate: object_at
+      args:
+        object: pipette1
+        location: bench_right
+        slot: pipette_slot_P1
+
+    - predicate: object_at
+      args:
+        object: tip1
+        location: bench_right
+        slot: tip_slot_T1
+
+    - predicate: object_at
+      args:
+        object: tip2
+        location: bench_right
+        slot: tip_slot_T2
+
+    - predicate: object_at
+      args:
+        object: tip3
+        location: bench_right
+        slot: tip_slot_T3
+
+    - predicate: object_at
+      args:
+        object: tip4
+        location: bench_right
+        slot: tip_slot_T4
+
+    - predicate: object_at
+      args:
+        object: waste_container1
+        location: waste_area
+        slot: waste_slot_W1
+
+    - predicate: slot_occupied
+      args:
+        location: bench_center
+        slot: rack_slot_A1
+        object: sample_tube
+
+    - predicate: slot_occupied
+      args:
+        location: bench_center
+        slot: rack_slot_A2
+        object: blank_tube
+
+    - predicate: slot_occupied
+      args:
+        location: bench_left
+        slot: reagent_slot_B1
+        object: sample_solution_tube
+
+    - predicate: slot_occupied
+      args:
+        location: bench_left
+        slot: reagent_slot_B2
+        object: distilled_water_tube
+
+    - predicate: slot_occupied
+      args:
+        location: bench_left
+        slot: reagent_slot_B3
+        object: sodium_hydroxide_tube
+
+    - predicate: slot_occupied
+      args:
+        location: bench_left
+        slot: reagent_slot_B4
+        object: copper_sulfate_tube
+
+    - predicate: slot_occupied
+      args:
+        location: bench_right
+        slot: pipette_slot_P1
+        object: pipette1
+
+    - predicate: slot_occupied
+      args:
+        location: bench_right
+        slot: tip_slot_T1
+        object: tip1
+
+    - predicate: slot_occupied
+      args:
+        location: bench_right
+        slot: tip_slot_T2
+        object: tip2
+
+    - predicate: slot_occupied
+      args:
+        location: bench_right
+        slot: tip_slot_T3
+        object: tip3
+
+    - predicate: slot_occupied
+      args:
+        location: bench_right
+        slot: tip_slot_T4
+        object: tip4
+
+    - predicate: slot_occupied
+      args:
+        location: waste_area
+        slot: waste_slot_W1
+        object: waste_container1
+
+    - predicate: slot_free
+      args:
+        location: bench_center
+        slot: cap_slot_C1
+
+    - predicate: slot_free
+      args:
+        location: bench_center
+        slot: cap_slot_C2
+
+    - predicate: slot_free
+      args:
+        location: bench_left
+        slot: cap_slot_C3
+
+    - predicate: slot_free
+      args:
+        location: bench_left
+        slot: cap_slot_C4
+
+    - predicate: slot_free
+      args:
+        location: bench_left
+        slot: cap_slot_C5
+
+    - predicate: slot_free
+      args:
+        location: bench_left
+        slot: cap_slot_C6
+
+    - predicate: object_reachable
+      args:
+        object: sample_tube
+        location: bench_center
+        slot: rack_slot_A1
+
+    - predicate: object_reachable
+      args:
+        object: blank_tube
+        location: bench_center
+        slot: rack_slot_A2
+
+    - predicate: object_reachable
+      args:
+        object: sample_solution_tube
+        location: bench_left
+        slot: reagent_slot_B1
+
+    - predicate: object_reachable
+      args:
+        object: distilled_water_tube
+        location: bench_left
+        slot: reagent_slot_B2
+
+    - predicate: object_reachable
+      args:
+        object: sodium_hydroxide_tube
+        location: bench_left
+        slot: reagent_slot_B3
+
+    - predicate: object_reachable
+      args:
+        object: copper_sulfate_tube
+        location: bench_left
+        slot: reagent_slot_B4
+
+    - predicate: object_reachable
+      args:
+        object: pipette1
+        location: bench_right
+        slot: pipette_slot_P1
+
+    - predicate: object_reachable
+      args:
+        object: tip1
+        location: bench_right
+        slot: tip_slot_T1
+
+    - predicate: object_reachable
+      args:
+        object: tip2
+        location: bench_right
+        slot: tip_slot_T2
+
+    - predicate: object_reachable
+      args:
+        object: tip3
+        location: bench_right
+        slot: tip_slot_T3
+
+    - predicate: object_reachable
+      args:
+        object: tip4
+        location: bench_right
+        slot: tip_slot_T4
+
+    - predicate: object_reachable
+      args:
+        object: waste_container1
+        location: waste_area
+        slot: waste_slot_W1
+
+    - predicate: contains
+      args:
+        container: sample_solution_tube
+        liquid: sample_solution
+
+    - predicate: contains
+      args:
+        container: distilled_water_tube
+        liquid: distilled_water
+
+    - predicate: contains
+      args:
+        container: sodium_hydroxide_tube
+        liquid: sodium_hydroxide
+
+    - predicate: contains
+      args:
+        container: copper_sulfate_tube
+        liquid: copper_sulfate
+
+    - predicate: water_bath_off
+      args:
+        water_bath: water_bath1
+
+  functions:
+
+    - function: pipette_min_volume
+      args:
+        pipette: pipette1
+      value: 100
+      unit: ul
+
+    - function: pipette_max_volume
+      args:
+        pipette: pipette1
+      value: 5000
+      unit: ul
+
+    - function: pipette_loaded_volume
+      args:
+        pipette: pipette1
+      value: 0
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sample_tube
+      value: 10000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: blank_tube
+      value: 10000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sample_solution_tube
+      value: 15000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: distilled_water_tube
+      value: 15000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sodium_hydroxide_tube
+      value: 15000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: copper_sulfate_tube
+      value: 15000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      value: 0
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: blank_tube
+      value: 0
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_solution_tube
+      value: 8000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: distilled_water_tube
+      value: 8000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sodium_hydroxide_tube
+      value: 10000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: copper_sulfate_tube
+      value: 5000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sample_solution
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sodium_hydroxide
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: distilled_water
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: sodium_hydroxide
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_solution_tube
+        liquid: sample_solution
+      value: 8000
+      unit: ul
+
+    - function: volume
+      args:
+        container: distilled_water_tube
+        liquid: distilled_water
+      value: 8000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sodium_hydroxide_tube
+        liquid: sodium_hydroxide
+      value: 10000
+      unit: ul
+
+    - function: volume
+      args:
+        container: copper_sulfate_tube
+        liquid: copper_sulfate
+      value: 5000
+      unit: ul
+
+    - function: drop_count
+      args:
+        container: sample_tube
+        liquid: copper_sulfate
+      value: 0
+      unit: drops
+
+    - function: drop_count
+      args:
+        container: blank_tube
+        liquid: copper_sulfate
+      value: 0
+      unit: drops
+
+    - function: mix_duration
+      args:
+        container: sample_tube
+      value: 0
+      unit: sec
+
+    - function: mix_duration
+      args:
+        container: blank_tube
+      value: 0
+      unit: sec
+
+    - function: standing_duration
+      args:
+        container: sample_tube
+      value: 0
+      unit: min
+
+    - function: standing_duration
+      args:
+        container: blank_tube
+      value: 0
+      unit: min

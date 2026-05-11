@@ -1,0 +1,400 @@
+case_id: bio_lab_protocol_007
+difficulty: Medium
+domain: bio_lab_colorimetric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Label one clean test tube as sample_tube. Label another clean test tube as
+  control_tube. Open the sample solution tube, distilled water tube, Benedict
+  reagent tube, sample_tube, and control_tube. Use a fresh tip to transfer 2000
+  uL of sample solution into sample_tube. Use a fresh tip to transfer 2000 uL of
+  distilled water into control_tube. Use fresh tips to add 2000 uL of Benedict
+  reagent into each labeled tube. Cap both labeled tubes. Mix sample_tube gently
+  for 5 seconds. Mix control_tube gently for 5 seconds. Set the water bath to 95
+  C. Place both labeled tubes in the water bath. Heat both tubes at 95 C for 5
+  minutes. Remove both tubes from the water bath. Cool both tubes at room
+  temperature for 2 minutes.
+
+expected_api_sequence:
+
+  - api: label_container
+    args:
+      container: sample_tube
+      label: sample_label
+
+  - api: label_container
+    args:
+      container: control_tube
+      label: control_label
+
+  - api: open_container
+    args:
+      container: sample_solution_tube
+
+  - api: open_container
+    args:
+      container: distilled_water_tube
+
+  - api: open_container
+    args:
+      container: benedict_reagent_tube
+
+  - api: open_container
+    args:
+      container: sample_tube
+
+  - api: open_container
+    args:
+      container: control_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: sample_solution_tube
+      target: sample_tube
+      liquid: sample_solution
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip2
+      source: distilled_water_tube
+      target: control_tube
+      liquid: distilled_water
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip3
+      source: benedict_reagent_tube
+      target: sample_tube
+      liquid: benedict_reagent
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip4
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip4
+      source: benedict_reagent_tube
+      target: control_tube
+      liquid: benedict_reagent
+      volume_ul: 2000
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip4
+
+  - api: close_container
+    args:
+      container: sample_tube
+
+  - api: close_container
+    args:
+      container: control_tube
+
+  - api: mix_seconds
+    args:
+      container: sample_tube
+      duration_sec: 5
+      location: bench
+
+  - api: mix_seconds
+    args:
+      container: control_tube
+      duration_sec: 5
+      location: bench
+
+  - api: set_temperature
+    args:
+      water_bath: water_bath1
+      temperature_c: 95
+
+  - api: place_in_water_bath
+    args:
+      container: sample_tube
+      water_bath: water_bath1
+      location: bench
+
+  - api: place_in_water_bath
+    args:
+      container: control_tube
+      water_bath: water_bath1
+      location: bench
+
+  - api: heat_in_water_bath
+    args:
+      container: sample_tube
+      water_bath: water_bath1
+      temperature_c: 95
+      duration_min: 5
+
+  - api: heat_in_water_bath
+    args:
+      container: control_tube
+      water_bath: water_bath1
+      temperature_c: 95
+      duration_min: 5
+
+  - api: remove_from_water_bath
+    args:
+      container: sample_tube
+      water_bath: water_bath1
+      location: bench
+
+  - api: remove_from_water_bath
+    args:
+      container: control_tube
+      water_bath: water_bath1
+      location: bench
+
+  - api: cool_at_room_temperature
+    args:
+      container: sample_tube
+      duration_min: 2
+      location: bench
+
+  - api: cool_at_room_temperature
+    args:
+      container: control_tube
+      duration_min: 2
+      location: bench
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: labeled
+      args:
+        container: sample_tube
+        label: sample_label
+
+    - predicate: labeled
+      args:
+        container: control_tube
+        label: control_label
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: sample_solution
+
+    - predicate: contains
+      args:
+        container: sample_tube
+        liquid: benedict_reagent
+
+    - predicate: contains
+      args:
+        container: control_tube
+        liquid: distilled_water
+
+    - predicate: contains
+      args:
+        container: control_tube
+        liquid: benedict_reagent
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: control_tube
+
+    - predicate: mixed
+      args:
+        container: sample_tube
+
+    - predicate: mixed
+      args:
+        container: control_tube
+
+    - predicate: heated
+      args:
+        container: sample_tube
+
+    - predicate: heated
+      args:
+        container: control_tube
+
+    - predicate: cooled
+      args:
+        container: sample_tube
+
+    - predicate: cooled
+      args:
+        container: control_tube
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: tip_used
+      args:
+        tip: tip2
+
+    - predicate: tip_used
+      args:
+        tip: tip3
+
+    - predicate: tip_used
+      args:
+        tip: tip4
+
+  functions:
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      op: "=="
+      value: 4000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: control_tube
+      op: "=="
+      value: 4000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sample_solution
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: benedict_reagent
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: control_tube
+        liquid: distilled_water
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: volume
+      args:
+        container: control_tube
+        liquid: benedict_reagent
+      op: "=="
+      value: 2000
+      unit: ul
+
+    - function: temperature
+      args:
+        device: water_bath1
+      op: "=="
+      value: 95
+      unit: celsius
+
+    - function: mix_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 5
+      unit: sec
+
+    - function: mix_duration
+      args:
+        container: control_tube
+      op: "=="
+      value: 5
+      unit: sec
+
+    - function: heat_temperature
+      args:
+        container: sample_tube
+      op: "=="
+      value: 95
+      unit: celsius
+
+    - function: heat_temperature
+      args:
+        container: control_tube
+      op: "=="
+      value: 95
+      unit: celsius
+
+    - function: heat_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 5
+      unit: min
+
+    - function: heat_duration
+      args:
+        container: control_tube
+      op: "=="
+      value: 5
+      unit: min
+
+    - function: cooling_duration
+      args:
+        container: sample_tube
+      op: "=="
+      value: 2
+      unit: min
+
+    - function: cooling_duration
+      args:
+        container: control_tube
+      op: "=="
+      value: 2
+      unit: min

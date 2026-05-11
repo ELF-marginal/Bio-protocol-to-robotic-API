@@ -1,0 +1,15 @@
+llm_grounding:
+  enabled: false
+  provider: "deepseek"
+  model: "deepseek-chat"
+  temperature: 0.0
+  max_retries: 3
+  timeout_seconds: 60
+  endpoint: "https://api.deepseek.com/chat/completions"
+  api_registry_path: "configs/api_registry.yaml"
+  initial_lab_state_path: "configs/initial_lab_state.yaml"
+  expected_lab_state_path: "configs/initial_lab_state.yaml"
+  notice_path: "configs/llm_grounder_notice.txt"
+  save_debug_files: true
+  require_json_output: true
+  require_schema_validation: true

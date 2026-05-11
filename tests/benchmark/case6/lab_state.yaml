@@ -1,0 +1,130 @@
+lab_state_id: simple_bio_lab_state_006
+domain: bio_lab_numeric_api
+
+objects:
+
+  pipettes:
+    pipette1:
+      type: pipette
+
+  tips:
+    tip1:
+      type: tip
+
+  containers:
+    used_reaction_tube:
+      type: tube
+
+  liquids:
+    wash_residue:
+      type: reagent
+
+  devices:
+    fridge1:
+      type: fridge
+    heater1:
+      type: heater
+    centrifuge1:
+      type: centrifuge
+
+  locations:
+    bench:
+      type: location
+    cold_room:
+      type: location
+
+init:
+
+  predicates:
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_clean
+      args:
+        tip: tip1
+
+    - predicate: container_closed
+      args:
+        container: used_reaction_tube
+
+    - predicate: container_used
+      args:
+        container: used_reaction_tube
+
+    - predicate: container_at
+      args:
+        container: used_reaction_tube
+        location: bench
+
+    - predicate: device_at
+      args:
+        device: fridge1
+        location: cold_room
+
+    - predicate: device_at
+      args:
+        device: heater1
+        location: bench
+
+    - predicate: device_at
+      args:
+        device: centrifuge1
+        location: bench
+
+    - predicate: fridge_closed
+      args:
+        fridge: fridge1
+
+    - predicate: heater_off
+      args:
+        heater: heater1
+
+    - predicate: centrifuge_closed
+      args:
+        centrifuge: centrifuge1
+
+  functions:
+
+    - function: pipette_max_volume
+      args:
+        pipette: pipette1
+      value: 1000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: used_reaction_tube
+      value: 1500
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: used_reaction_tube
+      value: 0
+      unit: ul
+
+    - function: temperature
+      args:
+        device: heater1
+      value: 25
+      unit: celsius
+
+    - function: heater_min_temperature
+      args:
+        device: heater1
+      value: 0
+      unit: celsius
+
+    - function: heater_max_temperature
+      args:
+        device: heater1
+      value: 100
+      unit: celsius
+
+    - function: centrifuge_max_speed
+      args:
+        centrifuge: centrifuge1
+      value: 20000
+      unit: rpm

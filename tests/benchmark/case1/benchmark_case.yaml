@@ -1,0 +1,331 @@
+case_id: bio_lab_protocol_001
+difficulty: Medium
+domain: bio_lab_numeric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Retrieve the lysis buffer from the fridge and move the buffer tube from the
+  cold room to the bench. Open the sample tube, buffer tube, and reaction tube.
+  Use a fresh pipette tip for each liquid-handling operation. Transfer 50 uL of
+  sample A from the sample tube to the reaction tube, then detach the used tip.
+  Transfer 100 uL of lysis buffer from the buffer tube to the reaction tube,
+  then detach the used tip. Mix the reaction tube by pipetting 100 uL for 5
+  repetitions with a fresh tip, then detach the used tip. Close all opened tubes.
+  Set the heater to 37 C and place the reaction tube on the heater. Incubate the
+  reaction tube at 37 C for 30 minutes. Load the reaction tube into the centrifuge
+  and centrifuge it at 12000 rpm for 5 minutes.
+
+expected_api_sequence:
+
+  - api: open_fridge
+    args:
+      fridge: fridge1
+
+  - api: take_from_fridge
+    args:
+      liquid: lysis_buffer
+      fridge: fridge1
+      location: cold_room
+
+  - api: close_fridge
+    args:
+      fridge: fridge1
+
+  - api: move_container
+    args:
+      container: buffer_tube
+      from_location: cold_room
+      to_location: bench
+
+  - api: open_container
+    args:
+      container: sample_tube
+
+  - api: open_container
+    args:
+      container: buffer_tube
+
+  - api: open_container
+    args:
+      container: reaction_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: sample_tube
+      target: reaction_tube
+      liquid: sample_a
+      volume_ul: 50
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip2
+      source: buffer_tube
+      target: reaction_tube
+      liquid: lysis_buffer
+      volume_ul: 100
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: mix
+    args:
+      pipette: pipette1
+      tip: tip3
+      container: reaction_tube
+      mix_volume_ul: 100
+      repetitions: 5
+      location: bench
+
+  - api: close_container
+    args:
+      container: sample_tube
+
+  - api: close_container
+    args:
+      container: buffer_tube
+
+  - api: close_container
+    args:
+      container: reaction_tube
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip3
+
+  - api: set_temperature
+    args:
+      heater: heater1
+      temperature_c: 37
+
+  - api: place_on_heater
+    args:
+      container: reaction_tube
+      heater: heater1
+      location: bench
+
+  - api: incubate
+    args:
+      container: reaction_tube
+      heater: heater1
+      temperature_c: 37
+      duration_min: 30
+
+  - api: open_centrifuge
+    args:
+      centrifuge: centrifuge1
+
+  - api: load_centrifuge
+    args:
+      centrifuge: centrifuge1
+      container: reaction_tube
+      location: bench
+
+  - api: close_centrifuge
+    args:
+      centrifuge: centrifuge1
+
+  - api: centrifuge
+    args:
+      centrifuge: centrifuge1
+      container: reaction_tube
+      speed_rpm: 12000
+      duration_min: 5
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: contains
+      args:
+        container: reaction_tube
+        liquid: sample_a
+
+    - predicate: contains
+      args:
+        container: reaction_tube
+        liquid: lysis_buffer
+
+    - predicate: mixed
+      args:
+        container: reaction_tube
+
+    - predicate: incubated
+      args:
+        container: reaction_tube
+
+    - predicate: centrifuged
+      args:
+        container: reaction_tube
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: buffer_tube
+
+    - predicate: container_closed
+      args:
+        container: reaction_tube
+
+    - predicate: container_at
+      args:
+        container: sample_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: buffer_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: reaction_tube
+        location: bench
+
+    - predicate: fridge_closed
+      args:
+        fridge: fridge1
+
+    - predicate: centrifuge_closed
+      args:
+        centrifuge: centrifuge1
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: tip_used
+      args:
+        tip: tip2
+
+    - predicate: tip_used
+      args:
+        tip: tip3
+
+    - predicate: container_used
+      args:
+        container: reaction_tube
+
+  functions:
+
+    - function: volume
+      args:
+        container: reaction_tube
+        liquid: sample_a
+      op: "=="
+      value: 50
+      unit: ul
+
+    - function: volume
+      args:
+        container: reaction_tube
+        liquid: lysis_buffer
+      op: "=="
+      value: 100
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sample_a
+      op: "=="
+      value: 50
+      unit: ul
+
+    - function: volume
+      args:
+        container: buffer_tube
+        liquid: lysis_buffer
+      op: "=="
+      value: 900
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 150
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      op: "=="
+      value: 50
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: buffer_tube
+      op: "=="
+      value: 900
+      unit: ul
+
+    - function: temperature
+      args:
+        device: heater1
+      op: "=="
+      value: 37
+      unit: celsius
+
+    - function: incubation_temperature
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 37
+      unit: celsius
+
+    - function: incubation_duration
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 30
+      unit: min
+
+    - function: centrifuge_speed
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 12000
+      unit: rpm
+
+    - function: centrifuge_duration
+      args:
+        container: reaction_tube
+      op: "=="
+      value: 5
+      unit: min

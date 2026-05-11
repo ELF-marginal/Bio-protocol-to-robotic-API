@@ -1,11 +1,10 @@
 benchmark:
-  cases_dir: "tests/cases"
+  cases_dir: "tests/benchmark"
   output_root: "runs"
   metrics:
-    - "parsing_accuracy"
-    - "grounding_accuracy"
-    - "parameter_accuracy"
     - "sequence_accuracy"
-    - "executability_rate"
+    - "parameter_accuracy"
+    - "final_state_accuracy"
+    - "score"
     - "pass_rate"
-    - "precondition_violation_count"
+    - "final_score"

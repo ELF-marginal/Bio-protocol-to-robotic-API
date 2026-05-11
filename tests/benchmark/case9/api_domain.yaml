@@ -1,0 +1,1240 @@
+domain: bio_lab_colorimetric_dual_arm_api
+
+requirements:
+  - strips
+  - typing
+  - negative_preconditions
+  - numeric_fluents
+  - explicit_robot_navigation
+  - dual_arm_manipulation
+  - object_location_tracking
+  - cap_as_independent_object
+  - primitive_liquid_handling
+
+types:
+  object:
+    - robot
+    - hand
+    - pipette
+    - tip
+    - container
+    - cap
+    - liquid
+    - device
+    - location
+    - slot
+    - label
+    - waste_container
+    - rack
+    - path
+
+  robot:
+    - dual_arm_robot
+
+  hand:
+    - robot_hand
+
+  container:
+    - tube
+    - reagent_tube
+    - dropper_bottle
+
+  liquid:
+    - sample
+    - reagent
+    - buffer
+
+  device:
+    - water_bath
+
+predicates:
+
+  robot_at:
+    args:
+      robot: robot
+      location: location
+
+  path_available:
+    args:
+      from_location: location
+      to_location: location
+      path: path
+
+  hand_empty:
+    args:
+      robot: robot
+      hand: hand
+
+  holding:
+    args:
+      robot: robot
+      hand: hand
+      object: object
+
+  object_at:
+    args:
+      object: object
+      location: location
+      slot: slot
+
+  object_reachable:
+    args:
+      object: object
+      location: location
+      slot: slot
+
+  slot_free:
+    args:
+      location: location
+      slot: slot
+
+  slot_occupied:
+    args:
+      location: location
+      slot: slot
+      object: object
+
+  container_clean:
+    args:
+      container: container
+
+  container_used:
+    args:
+      container: container
+
+  container_open:
+    args:
+      container: container
+
+  container_closed:
+    args:
+      container: container
+
+  cap_attached:
+    args:
+      cap: cap
+      container: container
+
+  cap_for:
+    args:
+      cap: cap
+      container: container
+
+  labeled:
+    args:
+      container: container
+      label: label
+
+  contains:
+    args:
+      container: container
+      liquid: liquid
+
+  pipette_free:
+    args:
+      pipette: pipette
+
+  has_tip:
+    args:
+      pipette: pipette
+      tip: tip
+
+  tip_clean:
+    args:
+      tip: tip
+
+  tip_attached:
+    args:
+      tip: tip
+      pipette: pipette
+
+  tip_used:
+    args:
+      tip: tip
+
+  tip_discarded:
+    args:
+      tip: tip
+      waste_container: waste_container
+
+  tip_contains:
+    args:
+      tip: tip
+      liquid: liquid
+
+  mixed:
+    args:
+      container: container
+
+  stood:
+    args:
+      container: container
+
+  water_bath_on:
+    args:
+      water_bath: water_bath
+
+  water_bath_off:
+    args:
+      water_bath: water_bath
+
+functions:
+
+  volume:
+    args:
+      container: container
+      liquid: liquid
+    return_type: number
+    unit: ul
+
+  total_volume:
+    args:
+      container: container
+    return_type: number
+    unit: ul
+
+  capacity:
+    args:
+      container: container
+    return_type: number
+    unit: ul
+
+  pipette_min_volume:
+    args:
+      pipette: pipette
+    return_type: number
+    unit: ul
+
+  pipette_max_volume:
+    args:
+      pipette: pipette
+    return_type: number
+    unit: ul
+
+  pipette_loaded_volume:
+    args:
+      pipette: pipette
+    return_type: number
+    unit: ul
+
+  drop_count:
+    args:
+      container: container
+      liquid: liquid
+    return_type: number
+    unit: drops
+
+  mix_duration:
+    args:
+      container: container
+    return_type: number
+    unit: sec
+
+  standing_duration:
+    args:
+      container: container
+    return_type: number
+    unit: min
+
+  grip_force:
+    args:
+      object: object
+    return_type: number
+    unit: N
+
+  robot_speed:
+    args:
+      robot: robot
+    return_type: number
+    unit: mm_per_s
+
+actions:
+
+  move_robot:
+    parameters:
+      robot:
+        type: robot
+      from_location:
+        type: location
+      to_location:
+        type: location
+      path:
+        type: path
+      speed_mm_per_s:
+        type: number
+        unit: mm_per_s
+        min: 1
+      stop_tolerance_mm:
+        type: number
+        unit: mm
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: from_location
+
+        - predicate: path_available
+          args:
+            from_location: from_location
+            to_location: to_location
+            path: path
+
+    effects:
+      add:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: to_location
+
+      delete:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: from_location
+
+      numeric:
+        - function: robot_speed
+          args:
+            robot: robot
+          op: "="
+          value:
+            parameter: speed_mm_per_s
+
+  grasp_object:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      object:
+        type: object
+      location:
+        type: location
+      slot:
+        type: slot
+      grasp_type:
+        type: string
+        enum: [top_grasp, side_grasp, pinch]
+      approach_direction:
+        type: string
+        enum: [top, front, left, right]
+      grip_force_n:
+        type: number
+        unit: N
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: location
+
+        - predicate: hand_empty
+          args:
+            robot: robot
+            hand: hand
+
+        - predicate: object_at
+          args:
+            object: object
+            location: location
+            slot: slot
+
+        - predicate: object_reachable
+          args:
+            object: object
+            location: location
+            slot: slot
+
+    effects:
+      add:
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: object
+
+        - predicate: slot_free
+          args:
+            location: location
+            slot: slot
+
+      delete:
+        - predicate: hand_empty
+          args:
+            robot: robot
+            hand: hand
+
+        - predicate: object_at
+          args:
+            object: object
+            location: location
+            slot: slot
+
+        - predicate: slot_occupied
+          args:
+            location: location
+            slot: slot
+            object: object
+
+      numeric:
+        - function: grip_force
+          args:
+            object: object
+          op: "="
+          value:
+            parameter: grip_force_n
+
+  place_object:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      object:
+        type: object
+      location:
+        type: location
+      slot:
+        type: slot
+      release_height_mm:
+        type: number
+        unit: mm
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: location
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: object
+
+        - predicate: slot_free
+          args:
+            location: location
+            slot: slot
+
+    effects:
+      add:
+        - predicate: object_at
+          args:
+            object: object
+            location: location
+            slot: slot
+
+        - predicate: slot_occupied
+          args:
+            location: location
+            slot: slot
+            object: object
+
+        - predicate: hand_empty
+          args:
+            robot: robot
+            hand: hand
+
+      delete:
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: object
+
+        - predicate: slot_free
+          args:
+            location: location
+            slot: slot
+
+  label_container:
+    parameters:
+      robot:
+        type: robot
+      container:
+        type: container
+      label:
+        type: label
+      location:
+        type: location
+      slot:
+        type: slot
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: location
+
+        - predicate: object_at
+          args:
+            object: container
+            location: location
+            slot: slot
+
+        - predicate: container_clean
+          args:
+            container: container
+
+    effects:
+      add:
+        - predicate: labeled
+          args:
+            container: container
+            label: label
+
+  unscrew_cap:
+    parameters:
+      robot:
+        type: robot
+      support_hand:
+        type: hand
+      cap_hand:
+        type: hand
+      container:
+        type: container
+      cap:
+        type: cap
+      torque_limit_nmm:
+        type: number
+        unit: nmm
+        min: 0
+      rotation_count:
+        type: number
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: holding
+          args:
+            robot: robot
+            hand: support_hand
+            object: container
+
+        - predicate: hand_empty
+          args:
+            robot: robot
+            hand: cap_hand
+
+        - predicate: cap_for
+          args:
+            cap: cap
+            container: container
+
+        - predicate: cap_attached
+          args:
+            cap: cap
+            container: container
+
+        - predicate: container_closed
+          args:
+            container: container
+
+    effects:
+      add:
+        - predicate: container_open
+          args:
+            container: container
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: cap_hand
+            object: cap
+
+      delete:
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: cap_attached
+          args:
+            cap: cap
+            container: container
+
+        - predicate: hand_empty
+          args:
+            robot: robot
+            hand: cap_hand
+
+  screw_cap:
+    parameters:
+      robot:
+        type: robot
+      support_hand:
+        type: hand
+      cap_hand:
+        type: hand
+      container:
+        type: container
+      cap:
+        type: cap
+      torque_limit_nmm:
+        type: number
+        unit: nmm
+        min: 0
+      rotation_count:
+        type: number
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: holding
+          args:
+            robot: robot
+            hand: support_hand
+            object: container
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: cap_hand
+            object: cap
+
+        - predicate: cap_for
+          args:
+            cap: cap
+            container: container
+
+        - predicate: container_open
+          args:
+            container: container
+
+    effects:
+      add:
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: cap_attached
+          args:
+            cap: cap
+            container: container
+
+        - predicate: hand_empty
+          args:
+            robot: robot
+            hand: cap_hand
+
+      delete:
+        - predicate: container_open
+          args:
+            container: container
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: cap_hand
+            object: cap
+
+  attach_tip_to_pipette:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+      tip_location:
+        type: location
+      tip_slot:
+        type: slot
+      press_depth_mm:
+        type: number
+        unit: mm
+        min: 0
+      press_force_n:
+        type: number
+        unit: N
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: pipette
+
+        - predicate: pipette_free
+          args:
+            pipette: pipette
+
+        - predicate: tip_clean
+          args:
+            tip: tip
+
+        - predicate: object_at
+          args:
+            object: tip
+            location: tip_location
+            slot: tip_slot
+
+    effects:
+      add:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - predicate: tip_attached
+          args:
+            tip: tip
+            pipette: pipette
+
+        - predicate: slot_free
+          args:
+            location: tip_location
+            slot: tip_slot
+
+      delete:
+        - predicate: pipette_free
+          args:
+            pipette: pipette
+
+        - predicate: tip_clean
+          args:
+            tip: tip
+
+        - predicate: object_at
+          args:
+            object: tip
+            location: tip_location
+            slot: tip_slot
+
+  aspirate_liquid:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+      source:
+        type: container
+      liquid:
+        type: liquid
+      volume_ul:
+        type: number
+        unit: ul
+        min: 0
+      aspiration_rate_ul_per_s:
+        type: number
+        unit: ul_per_s
+        min: 1
+      tip_depth_mm:
+        type: number
+        unit: mm
+        min: 0
+      source_location:
+        type: location
+      source_slot:
+        type: slot
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: source_location
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: pipette
+
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - predicate: container_open
+          args:
+            container: source
+
+        - predicate: object_at
+          args:
+            object: source
+            location: source_location
+            slot: source_slot
+
+        - predicate: contains
+          args:
+            container: source
+            liquid: liquid
+
+        - numeric:
+            left:
+              function: volume
+              args:
+                container: source
+                liquid: liquid
+            op: ">="
+            right:
+              parameter: volume_ul
+
+        - numeric:
+            left:
+              function: pipette_min_volume
+              args:
+                pipette: pipette
+            op: "<="
+            right:
+              parameter: volume_ul
+
+        - numeric:
+            left:
+              function: pipette_max_volume
+              args:
+                pipette: pipette
+            op: ">="
+            right:
+              parameter: volume_ul
+
+        - numeric:
+            left:
+              function: pipette_loaded_volume
+              args:
+                pipette: pipette
+            op: "=="
+            right:
+              value: 0
+
+    effects:
+      add:
+        - predicate: tip_contains
+          args:
+            tip: tip
+            liquid: liquid
+
+      numeric:
+        - function: volume
+          args:
+            container: source
+            liquid: liquid
+          op: "-="
+          value:
+            parameter: volume_ul
+
+        - function: total_volume
+          args:
+            container: source
+          op: "-="
+          value:
+            parameter: volume_ul
+
+        - function: pipette_loaded_volume
+          args:
+            pipette: pipette
+          op: "+="
+          value:
+            parameter: volume_ul
+
+  dispense_liquid:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+      target:
+        type: container
+      liquid:
+        type: liquid
+      volume_ul:
+        type: number
+        unit: ul
+        min: 0
+      dispense_rate_ul_per_s:
+        type: number
+        unit: ul_per_s
+        min: 1
+      tip_position:
+        type: string
+        enum: [center, inner_wall, bottom]
+      blow_out:
+        type: boolean
+      touch_off:
+        type: boolean
+      target_location:
+        type: location
+      target_slot:
+        type: slot
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: target_location
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: pipette
+
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - predicate: tip_contains
+          args:
+            tip: tip
+            liquid: liquid
+
+        - predicate: container_open
+          args:
+            container: target
+
+        - predicate: object_at
+          args:
+            object: target
+            location: target_location
+            slot: target_slot
+
+        - numeric:
+            left:
+              function: pipette_loaded_volume
+              args:
+                pipette: pipette
+            op: ">="
+            right:
+              parameter: volume_ul
+
+        - numeric:
+            left:
+              expression: subtract
+              operands:
+                - function: capacity
+                  args:
+                    container: target
+                - function: total_volume
+                  args:
+                    container: target
+            op: ">="
+            right:
+              parameter: volume_ul
+
+    effects:
+      add:
+        - predicate: contains
+          args:
+            container: target
+            liquid: liquid
+
+        - predicate: container_used
+          args:
+            container: target
+
+      delete:
+        - predicate: container_clean
+          args:
+            container: target
+
+        - predicate: tip_contains
+          args:
+            tip: tip
+            liquid: liquid
+
+      numeric:
+        - function: volume
+          args:
+            container: target
+            liquid: liquid
+          op: "+="
+          value:
+            parameter: volume_ul
+
+        - function: total_volume
+          args:
+            container: target
+          op: "+="
+          value:
+            parameter: volume_ul
+
+        - function: pipette_loaded_volume
+          args:
+            pipette: pipette
+          op: "-="
+          value:
+            parameter: volume_ul
+
+  eject_tip:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      pipette:
+        type: pipette
+      tip:
+        type: tip
+      waste_container:
+        type: waste_container
+      waste_location:
+        type: location
+      waste_slot:
+        type: slot
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: waste_location
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: pipette
+
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - predicate: object_at
+          args:
+            object: waste_container
+            location: waste_location
+            slot: waste_slot
+
+        - numeric:
+            left:
+              function: pipette_loaded_volume
+              args:
+                pipette: pipette
+            op: "=="
+            right:
+              value: 0
+
+    effects:
+      add:
+        - predicate: pipette_free
+          args:
+            pipette: pipette
+
+        - predicate: tip_used
+          args:
+            tip: tip
+
+        - predicate: tip_discarded
+          args:
+            tip: tip
+            waste_container: waste_container
+
+      delete:
+        - predicate: has_tip
+          args:
+            pipette: pipette
+            tip: tip
+
+        - predicate: tip_attached
+          args:
+            tip: tip
+            pipette: pipette
+
+  dispense_drops:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      source:
+        type: container
+      target:
+        type: container
+      liquid:
+        type: liquid
+      drops:
+        type: integer
+        min: 1
+      target_location:
+        type: location
+      target_slot:
+        type: slot
+      tilt_angle_deg:
+        type: number
+        unit: degree
+        min: 0
+      drop_interval_sec:
+        type: number
+        unit: sec
+        min: 0
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: target_location
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: source
+
+        - predicate: container_open
+          args:
+            container: source
+
+        - predicate: container_open
+          args:
+            container: target
+
+        - predicate: object_at
+          args:
+            object: target
+            location: target_location
+            slot: target_slot
+
+        - predicate: contains
+          args:
+            container: source
+            liquid: liquid
+
+    effects:
+      add:
+        - predicate: contains
+          args:
+            container: target
+            liquid: liquid
+
+        - predicate: container_used
+          args:
+            container: target
+
+      delete:
+        - predicate: container_clean
+          args:
+            container: target
+
+      numeric:
+        - function: drop_count
+          args:
+            container: target
+            liquid: liquid
+          op: "+="
+          value:
+            parameter: drops
+
+  shake_container:
+    parameters:
+      robot:
+        type: robot
+      hand:
+        type: hand
+      container:
+        type: container
+      location:
+        type: location
+      duration_sec:
+        type: number
+        unit: sec
+        min: 0
+      intensity:
+        type: string
+        enum: [gentle, normal, vigorous]
+      motion_pattern:
+        type: string
+        enum: [invert, swirl, linear_shake]
+
+    preconditions:
+      all:
+        - predicate: robot_at
+          args:
+            robot: robot
+            location: location
+
+        - predicate: holding
+          args:
+            robot: robot
+            hand: hand
+            object: container
+
+        - predicate: container_closed
+          args:
+            container: container
+
+        - numeric:
+            left:
+              function: total_volume
+              args:
+                container: container
+            op: ">"
+            right:
+              value: 0
+
+    effects:
+      add:
+        - predicate: mixed
+          args:
+            container: container
+
+      numeric:
+        - function: mix_duration
+          args:
+            container: container
+          op: "="
+          value:
+            parameter: duration_sec
+
+  stand_at_room_temperature:
+    parameters:
+      container:
+        type: container
+      duration_min:
+        type: number
+        unit: min
+        min: 0
+      location:
+        type: location
+      slot:
+        type: slot
+
+    preconditions:
+      all:
+        - predicate: container_closed
+          args:
+            container: container
+
+        - predicate: object_at
+          args:
+            object: container
+            location: location
+            slot: slot
+
+    effects:
+      add:
+        - predicate: stood
+          args:
+            container: container
+
+      numeric:
+        - function: standing_duration
+          args:
+            container: container
+          op: "="
+          value:
+            parameter: duration_min

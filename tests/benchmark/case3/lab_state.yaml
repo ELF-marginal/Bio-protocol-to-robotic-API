@@ -1,0 +1,258 @@
+lab_state_id: simple_bio_lab_state_003
+domain: bio_lab_numeric_api
+
+objects:
+
+  pipettes:
+    pipette1:
+      type: pipette
+
+  tips:
+    tip1:
+      type: tip
+    tip2:
+      type: tip
+    tip3:
+      type: tip
+
+  containers:
+    enzyme_tube:
+      type: tube
+    substrate_tube:
+      type: tube
+    reaction_tube:
+      type: tube
+
+  liquids:
+    enzyme_solution:
+      type: reagent
+    substrate_solution:
+      type: reagent
+
+  devices:
+    fridge1:
+      type: fridge
+    heater1:
+      type: heater
+    centrifuge1:
+      type: centrifuge
+
+  locations:
+    bench:
+      type: location
+    cold_room:
+      type: location
+
+init:
+
+  predicates:
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_clean
+      args:
+        tip: tip1
+
+    - predicate: tip_clean
+      args:
+        tip: tip2
+
+    - predicate: tip_clean
+      args:
+        tip: tip3
+
+    - predicate: container_closed
+      args:
+        container: enzyme_tube
+
+    - predicate: container_closed
+      args:
+        container: substrate_tube
+
+    - predicate: container_closed
+      args:
+        container: reaction_tube
+
+    - predicate: container_used
+      args:
+        container: enzyme_tube
+
+    - predicate: container_used
+      args:
+        container: substrate_tube
+
+    - predicate: container_clean
+      args:
+        container: reaction_tube
+
+    - predicate: container_at
+      args:
+        container: enzyme_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: substrate_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: reaction_tube
+        location: bench
+
+    - predicate: contains
+      args:
+        container: enzyme_tube
+        liquid: enzyme_solution
+
+    - predicate: contains
+      args:
+        container: substrate_tube
+        liquid: substrate_solution
+
+    - predicate: liquid_at
+      args:
+        liquid: enzyme_solution
+        location: bench
+
+    - predicate: liquid_at
+      args:
+        liquid: substrate_solution
+        location: bench
+
+    - predicate: device_at
+      args:
+        device: fridge1
+        location: cold_room
+
+    - predicate: device_at
+      args:
+        device: heater1
+        location: bench
+
+    - predicate: device_at
+      args:
+        device: centrifuge1
+        location: bench
+
+    - predicate: fridge_closed
+      args:
+        fridge: fridge1
+
+    - predicate: heater_off
+      args:
+        heater: heater1
+
+    - predicate: centrifuge_closed
+      args:
+        centrifuge: centrifuge1
+
+  functions:
+
+    - function: pipette_max_volume
+      args:
+        pipette: pipette1
+      value: 1000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: enzyme_tube
+      value: 1500
+      unit: ul
+
+    - function: capacity
+      args:
+        container: substrate_tube
+      value: 1500
+      unit: ul
+
+    - function: capacity
+      args:
+        container: reaction_tube
+      value: 1500
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: enzyme_tube
+      value: 100
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: substrate_tube
+      value: 150
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: reaction_tube
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: enzyme_tube
+        liquid: enzyme_solution
+      value: 100
+      unit: ul
+
+    - function: volume
+      args:
+        container: substrate_tube
+        liquid: substrate_solution
+      value: 150
+      unit: ul
+
+    - function: volume
+      args:
+        container: reaction_tube
+        liquid: enzyme_solution
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: reaction_tube
+        liquid: substrate_solution
+      value: 0
+      unit: ul
+
+    - function: temperature
+      args:
+        device: heater1
+      value: 25
+      unit: celsius
+
+    - function: heater_min_temperature
+      args:
+        device: heater1
+      value: 0
+      unit: celsius
+
+    - function: heater_max_temperature
+      args:
+        device: heater1
+      value: 100
+      unit: celsius
+
+    - function: incubation_temperature
+      args:
+        container: reaction_tube
+      value: 0
+      unit: celsius
+
+    - function: incubation_duration
+      args:
+        container: reaction_tube
+      value: 0
+      unit: min
+
+    - function: centrifuge_max_speed
+      args:
+        centrifuge: centrifuge1
+      value: 20000
+      unit: rpm

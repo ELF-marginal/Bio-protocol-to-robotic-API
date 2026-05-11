@@ -1,2 +1,4 @@
 # Write extra grounding notices here.
-# Content in this file will be passed to LLM grounder input as `notice` verbatim.
+# Content in this file will be passed to LLM grounding input as `notice` verbatim.
+If the state of the lab after you complete the experiment is not the expected state, please call the appropriate API again to change the lab state.
+The "expected laboratory state" is, in essence, the state to which one hopes to restore the laboratory upon the completion of an experiment.

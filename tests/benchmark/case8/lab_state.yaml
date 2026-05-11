@@ -1,0 +1,367 @@
+lab_state_id: medium_colorimetric_state_008
+domain: bio_lab_colorimetric_api
+
+objects:
+
+  pipettes:
+    pipette1:
+      type: pipette
+
+  tips:
+    tip1:
+      type: tip
+    tip2:
+      type: tip
+    tip3:
+      type: tip
+    tip4:
+      type: tip
+
+  containers:
+    sample_tube:
+      type: tube
+    blank_tube:
+      type: tube
+    sample_solution_tube:
+      type: tube
+    distilled_water_tube:
+      type: tube
+    sodium_hydroxide_tube:
+      type: tube
+    copper_sulfate_tube:
+      type: tube
+
+  liquids:
+    sample_solution:
+      type: sample
+    distilled_water:
+      type: buffer
+    sodium_hydroxide:
+      type: reagent
+    copper_sulfate:
+      type: reagent
+
+  devices:
+    water_bath1:
+      type: water_bath
+
+  locations:
+    bench:
+      type: location
+
+  labels:
+    sample_label:
+      type: label
+    blank_label:
+      type: label
+
+init:
+
+  predicates:
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_clean
+      args:
+        tip: tip1
+
+    - predicate: tip_clean
+      args:
+        tip: tip2
+
+    - predicate: tip_clean
+      args:
+        tip: tip3
+
+    - predicate: tip_clean
+      args:
+        tip: tip4
+
+    - predicate: container_clean
+      args:
+        container: sample_tube
+
+    - predicate: container_clean
+      args:
+        container: blank_tube
+
+    - predicate: container_used
+      args:
+        container: sample_solution_tube
+
+    - predicate: container_used
+      args:
+        container: distilled_water_tube
+
+    - predicate: container_used
+      args:
+        container: sodium_hydroxide_tube
+
+    - predicate: container_used
+      args:
+        container: copper_sulfate_tube
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: blank_tube
+
+    - predicate: container_closed
+      args:
+        container: sample_solution_tube
+
+    - predicate: container_closed
+      args:
+        container: distilled_water_tube
+
+    - predicate: container_closed
+      args:
+        container: sodium_hydroxide_tube
+
+    - predicate: container_closed
+      args:
+        container: copper_sulfate_tube
+
+    - predicate: container_at
+      args:
+        container: sample_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: blank_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: sample_solution_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: distilled_water_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: sodium_hydroxide_tube
+        location: bench
+
+    - predicate: container_at
+      args:
+        container: copper_sulfate_tube
+        location: bench
+
+    - predicate: device_at
+      args:
+        device: water_bath1
+        location: bench
+
+    - predicate: contains
+      args:
+        container: sample_solution_tube
+        liquid: sample_solution
+
+    - predicate: contains
+      args:
+        container: distilled_water_tube
+        liquid: distilled_water
+
+    - predicate: contains
+      args:
+        container: sodium_hydroxide_tube
+        liquid: sodium_hydroxide
+
+    - predicate: contains
+      args:
+        container: copper_sulfate_tube
+        liquid: copper_sulfate
+
+    - predicate: water_bath_off
+      args:
+        water_bath: water_bath1
+
+  functions:
+
+    - function: pipette_max_volume
+      args:
+        pipette: pipette1
+      value: 5000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sample_tube
+      value: 10000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: blank_tube
+      value: 10000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sample_solution_tube
+      value: 15000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: distilled_water_tube
+      value: 15000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: sodium_hydroxide_tube
+      value: 15000
+      unit: ul
+
+    - function: capacity
+      args:
+        container: copper_sulfate_tube
+      value: 15000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_tube
+      value: 0
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: blank_tube
+      value: 0
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sample_solution_tube
+      value: 8000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: distilled_water_tube
+      value: 8000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: sodium_hydroxide_tube
+      value: 10000
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: copper_sulfate_tube
+      value: 5000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sample_solution
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: sodium_hydroxide
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: distilled_water
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: blank_tube
+        liquid: sodium_hydroxide
+      value: 0
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_solution_tube
+        liquid: sample_solution
+      value: 8000
+      unit: ul
+
+    - function: volume
+      args:
+        container: distilled_water_tube
+        liquid: distilled_water
+      value: 8000
+      unit: ul
+
+    - function: volume
+      args:
+        container: sodium_hydroxide_tube
+        liquid: sodium_hydroxide
+      value: 10000
+      unit: ul
+
+    - function: volume
+      args:
+        container: copper_sulfate_tube
+        liquid: copper_sulfate
+      value: 5000
+      unit: ul
+
+    - function: temperature
+      args:
+        device: water_bath1
+      value: 25
+      unit: celsius
+
+    - function: mix_duration
+      args:
+        container: sample_tube
+      value: 0
+      unit: sec
+
+    - function: mix_duration
+      args:
+        container: blank_tube
+      value: 0
+      unit: sec
+
+    - function: standing_duration
+      args:
+        container: sample_tube
+      value: 0
+      unit: min
+
+    - function: standing_duration
+      args:
+        container: blank_tube
+      value: 0
+      unit: min
+
+    - function: drop_count
+      args:
+        container: sample_tube
+        liquid: copper_sulfate
+      value: 0
+      unit: drops
+
+    - function: drop_count
+      args:
+        container: blank_tube
+        liquid: copper_sulfate
+      value: 0
+      unit: drops

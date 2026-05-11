@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLMGroundingInput",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "parsed_protocol",
+    "available_apis",
+    "api_domain",
+    "safety_rules",
+    "lab_state_initial",
+    "expected_final_state",
+    "grounding_task_instruction",
+    "notice"
+  ],
+  "properties": {
+    "protocol_id": { "type": "string" },
+    "parsed_protocol": { "type": "object" },
+    "api_domain": { "type": "object" },
+    "safety_rules": { "type": "array" },
+    "available_apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "parameters"],
+        "properties": {
+          "name": { "type": "string" },
+          "parameters": { "type": "object" },
+          "preconditions": { "type": "object" },
+          "effects": { "type": "object" }
+        }
+      }
+    },
+    "lab_state_initial": { "type": "object" },
+    "expected_final_state": { "type": "object" },
+    "grounding_task_instruction": { "type": "string" },
+    "notice": { "type": "string" }
+  }
+}

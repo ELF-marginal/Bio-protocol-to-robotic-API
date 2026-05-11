@@ -1,0 +1,187 @@
+case_id: bio_lab_protocol_005
+difficulty: Easy
+domain: bio_lab_numeric_api
+lab_state: lab_state.yaml
+
+input_text: >
+  Retrieve the staining buffer from the fridge and move the buffer tube to the
+  bench. Open the sample tube, buffer tube, and assay tube, then transfer 60 uL
+  of sample and 120 uL of staining buffer into the assay tube with fresh tips.
+
+expected_api_sequence:
+
+  - api: open_fridge
+    args:
+      fridge: fridge1
+
+  - api: take_from_fridge
+    args:
+      liquid: staining_buffer
+      fridge: fridge1
+      location: bench
+
+  - api: close_fridge
+    args:
+      fridge: fridge1
+
+  - api: move_container
+    args:
+      container: buffer_tube
+      from_location: cold_room
+      to_location: bench
+
+  - api: open_container
+    args:
+      container: sample_tube
+
+  - api: open_container
+    args:
+      container: buffer_tube
+
+  - api: open_container
+    args:
+      container: assay_tube
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip1
+      source: sample_tube
+      target: assay_tube
+      liquid: cell_sample
+      volume_ul: 60
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip1
+
+  - api: attach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: transfer
+    args:
+      pipette: pipette1
+      tip: tip2
+      source: buffer_tube
+      target: assay_tube
+      liquid: staining_buffer
+      volume_ul: 120
+      location: bench
+
+  - api: detach_tip
+    args:
+      pipette: pipette1
+      tip: tip2
+
+  - api: close_container
+    args:
+      container: sample_tube
+
+  - api: close_container
+    args:
+      container: buffer_tube
+
+  - api: close_container
+    args:
+      container: assay_tube
+
+expected_final_state:
+
+  predicates:
+
+    - predicate: contains
+      args:
+        container: assay_tube
+        liquid: cell_sample
+
+    - predicate: contains
+      args:
+        container: assay_tube
+        liquid: staining_buffer
+
+    - predicate: container_closed
+      args:
+        container: sample_tube
+
+    - predicate: container_closed
+      args:
+        container: buffer_tube
+
+    - predicate: container_closed
+      args:
+        container: assay_tube
+
+    - predicate: container_at
+      args:
+        container: buffer_tube
+        location: bench
+
+    - predicate: fridge_closed
+      args:
+        fridge: fridge1
+
+    - predicate: pipette_free
+      args:
+        pipette: pipette1
+
+    - predicate: tip_used
+      args:
+        tip: tip1
+
+    - predicate: tip_used
+      args:
+        tip: tip2
+
+    - predicate: container_used
+      args:
+        container: assay_tube
+
+  functions:
+
+    - function: volume
+      args:
+        container: assay_tube
+        liquid: cell_sample
+      op: "=="
+      value: 60
+      unit: ul
+
+    - function: volume
+      args:
+        container: assay_tube
+        liquid: staining_buffer
+      op: "=="
+      value: 120
+      unit: ul
+
+    - function: volume
+      args:
+        container: sample_tube
+        liquid: cell_sample
+      op: "=="
+      value: 140
+      unit: ul
+
+    - function: volume
+      args:
+        container: buffer_tube
+        liquid: staining_buffer
+      op: "=="
+      value: 880
+      unit: ul
+
+    - function: total_volume
+      args:
+        container: assay_tube
+      op: "=="
+      value: 180
+      unit: ul

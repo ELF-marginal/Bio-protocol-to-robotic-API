@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import os
@@ -11,25 +11,28 @@ import yaml
 from pydantic import BaseModel, Field, ValidationError
 
 from src.models.contracts import ApiCall, ParsedProtocol, Workflow
-from src.pipeline.mock_grounder import ground_to_workflow
 
 
 class APISpec(BaseModel):
     name: str
-    parameters: dict[str, str] = Field(default_factory=dict)
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    preconditions: dict[str, Any] = Field(default_factory=dict)
+    effects: dict[str, Any] = Field(default_factory=dict)
 
 
-class LLMGrounderInput(BaseModel):
+class LLMGroundingInput(BaseModel):
     protocol_id: str
     parsed_protocol: dict[str, Any]
     available_apis: list[APISpec]
-    lab_state_initial: dict[str, Any] | None = None
-    lab_state_expected: dict[str, Any] | None = None
-    grounder_task_instruction: str
+    api_domain: dict[str, Any] = Field(default_factory=dict)
+    safety_rules: list[dict[str, Any]] = Field(default_factory=list)
+    lab_state_initial: dict[str, Any] = Field(default_factory=dict)
+    expected_final_state: dict[str, Any] = Field(default_factory=dict)
+    grounding_task_instruction: str
     notice: str = ""
 
 
-class LLMGrounderOutput(BaseModel):
+class LLMGroundingOutput(BaseModel):
     decision: str
     reasoning_summary: str
     workflow: dict[str, Any]
@@ -38,66 +41,51 @@ class LLMGrounderOutput(BaseModel):
     assumptions: list[str] = Field(default_factory=list)
 
 
-def load_llm_grounder_config(path: str = "configs/llm_grounder_config.yaml") -> dict[str, Any]:
+def load_llm_grounding_config(path: str = "configs/llm_grounding_config.yaml") -> dict[str, Any]:
     cfg_path = Path(path)
     if not cfg_path.exists():
-        legacy_path = Path("configs/llm_grounding_config.yaml")
-        cfg_path = legacy_path if legacy_path.exists() else cfg_path
-    if not cfg_path.exists():
         return _default_config()
-
     loaded = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
-    if not isinstance(loaded, dict):
+    if not isinstance(loaded, dict) or not isinstance(loaded.get("llm_grounding"), dict):
         return _default_config()
-
-    section = loaded.get("llm_grounder")
-    if not isinstance(section, dict):
-        legacy_section = loaded.get("llm_grounding")
-        if isinstance(legacy_section, dict):
-            section = legacy_section
-        else:
-            return _default_config()
-
     merged = _default_config()
-    merged.update(section)
+    merged.update(loaded["llm_grounding"])
     return merged
 
 
-def build_llm_grounder_input(
+def build_llm_grounding_input(
     parsed_protocol: ParsedProtocol,
-    api_registry_path: str = "configs/api_registry.yaml",
+    api_domain_path: str = "configs/api_registry.yaml",
     initial_lab_state_path: str = "configs/initial_lab_state.yaml",
-    expected_lab_state_path: str = "configs/initial_lab_state.yaml",
+    safety_rules_path: str | None = None,
+    expected_final_state: dict[str, Any] | None = None,
     notice_path: str = "configs/llm_grounder_notice.txt",
-    include_lab_state: bool = True,
 ) -> dict[str, Any]:
-    base_instruction = (
-        "Convert parsed protocol steps to API workflow calls. "
-        "Prefer registered APIs. "
-    )
-    state_instruction = (
-        "Respect initial/expected lab-state constraints when planning calls. "
-        if include_lab_state
-        else "Lab-state is intentionally omitted in this call; infer continuity from operations and API preconditions only. "
-    )
-    payload = LLMGrounderInput(
+    api_domain = _load_yaml_mapping(api_domain_path)
+    payload = LLMGroundingInput(
         protocol_id=parsed_protocol.protocol_id,
         parsed_protocol=parsed_protocol.model_dump(),
-        available_apis=_load_available_apis(api_registry_path),
-        lab_state_initial=_load_lab_state(initial_lab_state_path) if include_lab_state else None,
-        lab_state_expected=_load_lab_state(expected_lab_state_path) if include_lab_state else None,
-        grounder_task_instruction=(
-            f"{base_instruction}{state_instruction}"
+        available_apis=_load_available_apis(api_domain_path),
+        api_domain=api_domain,
+        safety_rules=_load_safety_rules(safety_rules_path),
+        lab_state_initial=_load_lab_state(initial_lab_state_path),
+        expected_final_state=expected_final_state or {},
+        grounding_task_instruction=(
+            "Convert parsed protocol steps to API workflow calls. "
+            "Use only actions from api_domain.actions. Respect lab_state_initial and expected_final_state. "
+            "Respect numeric units declared in action parameters and functions, including object-specific device limits. "
+            "Maintain object states such as tip_clean/tip_used and container_clean/container_used. "
+            "Also obey every safety rule in safety_rules. "
             "If any API in workflow is not in available_apis, you must set contains_unregistered_api=true "
             "and include each distinct unknown API name in unregistered_apis. "
             "If all APIs are registered, you must set contains_unregistered_api=false and unregistered_apis=[]."
         ),
         notice=_load_notice_text(notice_path),
     )
-    return payload.model_dump(exclude_none=True)
+    return payload.model_dump()
 
 
-def invoke_llm_grounder(
+def invoke_llm_grounding(
     llm_input: dict[str, Any],
     config: dict[str, Any],
 ) -> dict[str, Any]:
@@ -115,7 +103,7 @@ def invoke_llm_grounder(
         payload = {
             "model": model,
             "temperature": temperature,
-            "messages": _build_llm_grounder_messages(llm_input),
+            "messages": _build_llm_grounding_messages(llm_input),
         }
         last_error = "provider_request_failed"
         for _ in range(max_retries + 1):
@@ -125,11 +113,11 @@ def invoke_llm_grounder(
                 if not isinstance(content, str) or not content.strip():
                     last_error = "empty_model_output"
                     continue
-                parsed, parse_error = parse_llm_grounder_output(content)
+                parsed, parse_error = parse_llm_grounding_output(content)
                 if parse_error is None and parsed is not None:
                     return {
-                        "llm_grounder_invoked": True,
-                        "llm_grounder_valid_json": True,
+                        "llm_grounding_invoked": True,
+                        "llm_grounding_valid_json": True,
                         "raw_output": content,
                         "parsed_output": parsed.model_dump(),
                         "failure_reason": None,
@@ -137,8 +125,8 @@ def invoke_llm_grounder(
                         "model": model,
                     }
                 return {
-                    "llm_grounder_invoked": True,
-                    "llm_grounder_valid_json": False,
+                    "llm_grounding_invoked": True,
+                    "llm_grounding_valid_json": False,
                     "raw_output": content,
                     "parsed_output": None,
                     "failure_reason": parse_error,
@@ -156,24 +144,24 @@ def invoke_llm_grounder(
     return _invocation_result(provider, model, "unsupported_provider")
 
 
-def parse_llm_grounder_output(raw_output: str) -> tuple[LLMGrounderOutput | None, str | None]:
+def parse_llm_grounding_output(raw_output: str) -> tuple[LLMGroundingOutput | None, str | None]:
     cleaned = _strip_code_fence(raw_output)
     candidate = _extract_json_object(cleaned) or cleaned
     try:
         loaded = json.loads(candidate)
     except Exception:
         return None, "invalid_json"
-    normalized = _normalize_grounder_shape(loaded)
+    normalized = _normalize_grounding_shape(loaded)
     if normalized is None:
         return None, "invalid_output_schema"
     try:
-        parsed = LLMGrounderOutput.model_validate(normalized)
+        parsed = LLMGroundingOutput.model_validate(normalized)
     except ValidationError:
         return None, "invalid_output_schema"
     return parsed, None
 
 
-def normalize_grounder_output(parsed_output: LLMGrounderOutput) -> dict[str, Any]:
+def normalize_grounding_output(parsed_output: LLMGroundingOutput) -> dict[str, Any]:
     workflow = parsed_output.workflow if isinstance(parsed_output.workflow, dict) else {}
     calls = workflow.get("api_calls", [])
     if not isinstance(calls, list):
@@ -204,9 +192,9 @@ def normalize_grounder_output(parsed_output: LLMGrounderOutput) -> dict[str, Any
     }
 
 
-def validate_grounder_output(
+def validate_grounding_output(
     normalized_output: dict[str, Any],
-    api_registry_path: str = "configs/api_registry.yaml",
+    api_domain_path: str = "configs/api_registry.yaml",
 ) -> dict[str, Any]:
     workflow = normalized_output.get("workflow", {})
     api_calls = workflow.get("api_calls", []) if isinstance(workflow, dict) else []
@@ -250,7 +238,7 @@ def validate_grounder_output(
             "issues": issues,
         }
 
-    registered = {api.name for api in _load_available_apis(api_registry_path)}
+    registered = {api.name for api in _load_available_apis(api_domain_path)}
     unregistered = sorted(
         {
             str(call.get("api"))
@@ -293,23 +281,26 @@ def validate_grounder_output(
     }
 
 
-def run_grounder_backend(
+def run_grounding_backend(
     parsed_protocol: ParsedProtocol,
-    enable_llm_grounder: bool,
+    enable_llm_grounding: bool,
     config: dict[str, Any] | None = None,
-    include_lab_state: bool = True,
+    api_domain_path: str | None = None,
+    initial_lab_state_path: str | None = None,
+    safety_rules_path: str | None = None,
+    expected_final_state: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    cfg = config or load_llm_grounder_config()
-    if enable_llm_grounder:
+    cfg = config or load_llm_grounding_config()
+    if enable_llm_grounding:
         cfg["enabled"] = True
 
     grounding_result: dict[str, Any] = {
         "grounding_backend_mode": "rule_only",
-        "llm_grounder_invoked": False,
-        "llm_grounder_valid_json": False,
-        "llm_grounder_schema_valid": False,
-        "llm_grounder_accepted": False,
-        "llm_grounder_fallback_used": False,
+        "llm_grounding_invoked": False,
+        "llm_grounding_valid_json": False,
+        "llm_grounding_schema_valid": False,
+        "llm_grounding_accepted": False,
+        "llm_grounding_fallback_used": False,
         "grounding_valid": True,
         "contains_unregistered_api": False,
         "unregistered_apis": [],
@@ -325,15 +316,14 @@ def run_grounder_backend(
     llm_raw_output_payload: dict[str, Any] | None = None
     llm_parsed_output_payload: dict[str, Any] | None = None
 
-    if not enable_llm_grounder:
-        workflow = ground_to_workflow(parsed_protocol)
-        grounding_result["grounding_failure_reason"] = "llm_grounder_disabled"
+    if not enable_llm_grounding:
+        grounding_result["grounding_failure_reason"] = "llm_grounding_disabled"
         return {
-            "workflow": workflow,
+            "workflow": _empty_workflow(parsed_protocol.protocol_id),
             "grounding_result": grounding_result,
-            "llm_grounder_input": None,
-            "llm_grounder_raw_output": None,
-            "llm_grounder_parsed_output": None,
+            "llm_grounding_input": None,
+            "llm_grounding_raw_output": None,
+            "llm_grounding_parsed_output": None,
             "grounding_validation_result": {
                 "grounding_valid": True,
                 "failure_reason": None,
@@ -344,16 +334,16 @@ def run_grounder_backend(
         }
 
     grounding_result["grounding_backend_mode"] = "llm_primary"
-    grounding_result["llm_grounder_invoked"] = True
-    llm_input_payload = build_llm_grounder_input(
+    grounding_result["llm_grounding_invoked"] = True
+    llm_input_payload = build_llm_grounding_input(
         parsed_protocol=parsed_protocol,
-        api_registry_path=str(cfg.get("api_registry_path", "configs/api_registry.yaml")),
-        initial_lab_state_path=str(cfg.get("initial_lab_state_path", "configs/initial_lab_state.yaml")),
-        expected_lab_state_path=str(cfg.get("expected_lab_state_path", "configs/initial_lab_state.yaml")),
+        api_domain_path=str(api_domain_path or cfg.get("api_domain_path") or cfg.get("api_registry_path", "configs/api_registry.yaml")),
+        initial_lab_state_path=str(initial_lab_state_path or cfg.get("initial_lab_state_path", "configs/initial_lab_state.yaml")),
+        safety_rules_path=str(safety_rules_path) if safety_rules_path else cfg.get("safety_rules_path"),
+        expected_final_state=expected_final_state,
         notice_path=str(cfg.get("notice_path", "configs/llm_grounder_notice.txt")),
-        include_lab_state=include_lab_state,
     )
-    invocation = invoke_llm_grounder(llm_input_payload, cfg)
+    invocation = invoke_llm_grounding(llm_input_payload, cfg)
     llm_raw_output_payload = {
         "provider": invocation.get("provider"),
         "model": invocation.get("model"),
@@ -361,22 +351,22 @@ def run_grounder_backend(
         "failure_reason": invocation.get("failure_reason"),
     }
 
-    parsed_output: LLMGrounderOutput | None = None
+    parsed_output: LLMGroundingOutput | None = None
     if invocation.get("parsed_output") is not None:
         try:
-            parsed_output = LLMGrounderOutput.model_validate(invocation["parsed_output"])
-            grounding_result["llm_grounder_valid_json"] = True
-            grounding_result["llm_grounder_schema_valid"] = True
+            parsed_output = LLMGroundingOutput.model_validate(invocation["parsed_output"])
+            grounding_result["llm_grounding_valid_json"] = True
+            grounding_result["llm_grounding_schema_valid"] = True
             llm_parsed_output_payload = parsed_output.model_dump()
         except ValidationError:
             grounding_result["grounding_failure_reason"] = "invalid_output_schema"
     else:
         raw_output = invocation.get("raw_output", "")
         if isinstance(raw_output, str) and raw_output.strip():
-            parsed_output, parse_error = parse_llm_grounder_output(raw_output)
+            parsed_output, parse_error = parse_llm_grounding_output(raw_output)
             if parse_error is None and parsed_output is not None:
-                grounding_result["llm_grounder_valid_json"] = True
-                grounding_result["llm_grounder_schema_valid"] = True
+                grounding_result["llm_grounding_valid_json"] = True
+                grounding_result["llm_grounding_schema_valid"] = True
                 llm_parsed_output_payload = parsed_output.model_dump()
             else:
                 grounding_result["grounding_failure_reason"] = parse_error
@@ -384,27 +374,25 @@ def run_grounder_backend(
             grounding_result["grounding_failure_reason"] = invocation.get("failure_reason")
 
     if parsed_output is None:
-        fallback_workflow = ground_to_workflow(parsed_protocol)
-        grounding_result["llm_grounder_fallback_used"] = True
         return {
-            "workflow": fallback_workflow,
+            "workflow": _empty_workflow(parsed_protocol.protocol_id),
             "grounding_result": grounding_result,
-            "llm_grounder_input": llm_input_payload,
-            "llm_grounder_raw_output": llm_raw_output_payload,
-            "llm_grounder_parsed_output": llm_parsed_output_payload,
+            "llm_grounding_input": llm_input_payload,
+            "llm_grounding_raw_output": llm_raw_output_payload,
+            "llm_grounding_parsed_output": llm_parsed_output_payload,
             "grounding_validation_result": {
-                "grounding_valid": True,
-                "failure_reason": None,
+                "grounding_valid": False,
+                "failure_reason": grounding_result.get("grounding_failure_reason") or "llm_grounding_failed",
                 "contains_unregistered_api": False,
                 "unregistered_apis": [],
-                "issues": ["llm_grounder_fallback_to_rule"],
+                "issues": [grounding_result.get("grounding_failure_reason") or "llm_grounding_failed"],
             },
         }
 
-    normalized = normalize_grounder_output(parsed_output)
-    validation = validate_grounder_output(
+    normalized = normalize_grounding_output(parsed_output)
+    validation = validate_grounding_output(
         normalized_output=normalized,
-        api_registry_path=str(cfg.get("api_registry_path", "configs/api_registry.yaml")),
+        api_domain_path=str(api_domain_path or cfg.get("api_domain_path") or cfg.get("api_registry_path", "configs/api_registry.yaml")),
     )
     grounding_result["grounding_valid"] = bool(validation["grounding_valid"])
     grounding_result["contains_unregistered_api"] = bool(validation["contains_unregistered_api"])
@@ -421,20 +409,22 @@ def run_grounder_backend(
         protocol_id=parsed_protocol.protocol_id,
         api_calls=normalized["workflow"]["api_calls"],
     )
-    grounding_result["llm_grounder_accepted"] = True
+    grounding_result["llm_grounding_accepted"] = True
     return {
         "workflow": workflow,
         "grounding_result": grounding_result,
-        "llm_grounder_input": llm_input_payload,
-        "llm_grounder_raw_output": llm_raw_output_payload,
-        "llm_grounder_parsed_output": llm_parsed_output_payload,
+        "llm_grounding_input": llm_input_payload,
+        "llm_grounding_raw_output": llm_raw_output_payload,
+        "llm_grounding_parsed_output": llm_parsed_output_payload,
         "grounding_validation_result": validation,
     }
 
 
 def _load_available_apis(api_registry_path: str) -> list[APISpec]:
-    payload = Path(api_registry_path).read_text(encoding="utf-8")
-    loaded = yaml.safe_load(payload)
+    loaded = _load_yaml_mapping(api_registry_path)
+    if isinstance(loaded.get("actions"), dict):
+        return _load_domain_actions(loaded)
+
     apis = loaded.get("apis", []) if isinstance(loaded, dict) else []
     out: list[APISpec] = []
     for item in apis:
@@ -444,12 +434,38 @@ def _load_available_apis(api_registry_path: str) -> list[APISpec]:
         if not isinstance(name, str):
             continue
         params = item.get("parameters", {})
-        param_types: dict[str, str] = {}
+        param_types: dict[str, Any] = {}
         if isinstance(params, dict):
             for key, value in params.items():
-                param_types[str(key)] = str(value)
+                param_types[str(key)] = value
         out.append(APISpec(name=name, parameters=param_types))
     return out
+
+
+def _load_domain_actions(domain: dict[str, Any]) -> list[APISpec]:
+    actions = domain.get("actions", {})
+    if not isinstance(actions, dict):
+        return []
+    out: list[APISpec] = []
+    for name, spec in actions.items():
+        if not isinstance(name, str) or not isinstance(spec, dict):
+            continue
+        params = spec.get("parameters", {})
+        out.append(
+            APISpec(
+                name=name,
+                parameters=params if isinstance(params, dict) else {},
+                preconditions=spec.get("preconditions", {}) if isinstance(spec.get("preconditions", {}), dict) else {},
+                effects=spec.get("effects", {}) if isinstance(spec.get("effects", {}), dict) else {},
+            )
+        )
+    return out
+
+
+def _load_yaml_mapping(path: str) -> dict[str, Any]:
+    payload = Path(path).read_text(encoding="utf-8")
+    loaded = yaml.safe_load(payload)
+    return loaded if isinstance(loaded, dict) else {}
 
 
 def _load_lab_state(path: str) -> dict[str, Any]:
@@ -460,13 +476,17 @@ def _load_lab_state(path: str) -> dict[str, Any]:
     return loaded if isinstance(loaded, dict) else {}
 
 
-def _build_llm_grounder_messages(llm_input: dict[str, Any]) -> list[dict[str, str]]:
-    has_lab_state = "lab_state_initial" in llm_input and "lab_state_expected" in llm_input
-    state_rule = (
-        "You MUST consider lab_state_initial and lab_state_expected constraints. "
-        if has_lab_state
-        else "lab_state_initial/lab_state_expected are intentionally omitted for this run; do not invent them. "
-    )
+def _load_safety_rules(path: str | None) -> list[dict[str, Any]]:
+    if not path:
+        return []
+    rule_path = Path(path)
+    if not rule_path.exists():
+        return []
+    loaded = yaml.safe_load(rule_path.read_text(encoding="utf-8"))
+    return loaded if isinstance(loaded, list) else []
+
+
+def _build_llm_grounding_messages(llm_input: dict[str, Any]) -> list[dict[str, str]]:
     return [
         {
             "role": "system",
@@ -482,14 +502,22 @@ def _build_llm_grounder_messages(llm_input: dict[str, Any]) -> list[dict[str, st
                 "{\"decision\":\"...\",\"reasoning_summary\":\"...\","
                 "\"workflow\":{\"api_calls\":[{\"call_id\":\"c1\",\"api\":\"...\",\"args\":{},\"source_step_id\":\"s1\"}]},"
                 "\"contains_unregistered_api\":false,\"unregistered_apis\":[],\"assumptions\":[]} . "
-                f"Use available_apis first. {state_rule}"
+                "Use available_apis first. You MUST consider lab_state_initial, api_domain, and expected_final_state constraints. "
+                "Preserve explicit numeric parameters from parsed_protocol exactly; do not replace stated mix volume, "
+                "repetition count, transfer volume, temperature, speed, or duration with defaults or derived totals. "
+                "If an entity value is a list, expand it into separate API calls in the listed order when the API handles one object at a time. "
+                "If the workflow uses attach_tip, add the corresponding detach_tip after that tip's liquid-handling action, "
+                "especially when expected_final_state requires pipette_free or tip_used. "
                 "Rules for unregistered API reporting are mandatory: "
                 "1) Every api in workflow.api_calls must be checked against available_apis.name. "
-                "2) If any api call is not in available_apis, set contains_unregistered_api=true. "
+                "2) If can not find a suitable api in available_apis, must must must set contains_unregistered_api=true. (weight=99999)"
                 "3) Put every distinct unregistered api name into unregistered_apis. "
                 "4) If all api calls are registered, set contains_unregistered_api=false and unregistered_apis=[]. "
                 "5) contains_unregistered_api must exactly match whether unregistered_apis is empty."
-            ),
+                "6) If the state of the lab after you complete the experiment is not the expected state, please call the appropriate API again to change the lab state."
+                "7) The 'expected laboratory state' is, in essence, the state to which one hopes to restore the laboratory upon the completion of an experiment."
+                "8) （最重要）如果你需要的一个api在可用API库没有匹配的内容，比如你想要一个离心操作，但是api库里任何离心类的api都没有，这时你编造一个假操作占位， 并且这时一定要contains_unregistered_api=true"
+            ), 
         },
         {"role": "user", "content": json.dumps(llm_input, ensure_ascii=False)},
     ]
@@ -548,7 +576,7 @@ def _extract_json_object(text: str) -> str | None:
     return text[start : end + 1]
 
 
-def _normalize_grounder_shape(payload: Any) -> dict[str, Any] | None:
+def _normalize_grounding_shape(payload: Any) -> dict[str, Any] | None:
     if not isinstance(payload, dict):
         return None
     if "workflow" in payload:
@@ -571,7 +599,7 @@ def _normalize_grounder_shape(payload: Any) -> dict[str, Any] | None:
     for key in ("result", "output", "data"):
         nested = payload.get(key)
         if isinstance(nested, dict):
-            normalized = _normalize_grounder_shape(nested)
+            normalized = _normalize_grounding_shape(nested)
             if normalized is not None:
                 return normalized
     return None
@@ -579,8 +607,8 @@ def _normalize_grounder_shape(payload: Any) -> dict[str, Any] | None:
 
 def _invocation_result(provider: str, model: str, failure_reason: str) -> dict[str, Any]:
     return {
-        "llm_grounder_invoked": True,
-        "llm_grounder_valid_json": False,
+        "llm_grounding_invoked": True,
+        "llm_grounding_valid_json": False,
         "raw_output": "",
         "parsed_output": None,
         "failure_reason": failure_reason,
@@ -607,6 +635,10 @@ def _workflow_from_api_calls(protocol_id: str, api_calls: list[dict[str, Any]]) 
     )
 
 
+def _empty_workflow(protocol_id: str) -> Workflow:
+    return Workflow(workflow_id=f"wf_{protocol_id}", protocol_id=protocol_id, api_calls=[])
+
+
 def _default_config() -> dict[str, Any]:
     return {
         "enabled": False,
@@ -616,8 +648,10 @@ def _default_config() -> dict[str, Any]:
         "max_retries": 2,
         "timeout_seconds": 60,
         "endpoint": "https://api.deepseek.com/chat/completions",
+        "api_domain_path": "configs/api_registry.yaml",
         "api_registry_path": "configs/api_registry.yaml",
         "initial_lab_state_path": "configs/initial_lab_state.yaml",
+        "safety_rules_path": None,
         "expected_lab_state_path": "configs/initial_lab_state.yaml",
         "notice_path": "configs/llm_grounder_notice.txt",
         "save_debug_files": True,
@@ -631,6 +665,3 @@ def _load_notice_text(path: str) -> str:
     if not notice_path.exists():
         return ""
     return notice_path.read_text(encoding="utf-8")
-
-
-

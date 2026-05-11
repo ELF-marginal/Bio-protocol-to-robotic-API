@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import os
@@ -12,7 +12,6 @@ import yaml
 from pydantic import BaseModel, Field, ValidationError
 
 from src.models.contracts import ParsedProtocol, ParsedStep, ProtocolInput
-from src.pipeline.mock_parser import parse_protocol
 
 
 class LLMParserInput(BaseModel):
@@ -339,6 +338,7 @@ def _build_llm_parser_messages(llm_input: dict[str, Any]) -> list[dict[str, str]
                 "\"entities\":{},\"parameters\":{}}]},\"assumptions\":[]} . "
                 "Each step must contain action/entities/parameters. "
                 "Map destination/container/tube to entities.target. "
+                "When one step mentions multiple targets or sources, use a JSON array for that entity value. "
                 "Map volume/temperature/duration into parameters.volume_ul/temperature_c/duration_min when possible."
             ),
         },
@@ -407,7 +407,7 @@ def run_parser_backend(
     llm_parser_parsed_output_payload: dict[str, Any] | None = None
 
     if not enable_llm_parser:
-        parsed = parse_protocol(processed_protocol)
+        parsed = ParsedProtocol(protocol_id=processed_protocol.protocol_id, steps=[])
         parser_quality_report = build_parser_quality_report(parsed, split_protocol_sentences(processed_protocol.raw_text))
         llm_parser_result["llm_parser_failure_reason"] = "llm_parser_disabled"
         return {
@@ -452,13 +452,12 @@ def run_parser_backend(
             llm_parser_result["llm_parser_failure_reason"] = invocation.get("failure_reason")
 
     if parsed_output is None:
-        fallback = parse_protocol(processed_protocol)
-        llm_parser_result["llm_parser_fallback_used"] = True
+        parsed = ParsedProtocol(protocol_id=processed_protocol.protocol_id, steps=[])
         parser_quality_report = build_parser_quality_report(
-            fallback, split_protocol_sentences(processed_protocol.raw_text)
+            parsed, split_protocol_sentences(processed_protocol.raw_text)
         )
         return {
-            "parsed": fallback,
+            "parsed": parsed,
             "protocol": processed_protocol,
             "parser_preprocess": preprocess_payload,
             "parser_quality_report": parser_quality_report,
@@ -474,15 +473,14 @@ def run_parser_backend(
     )
     valid, reason = _validate_llm_parsed_protocol_payload(normalized_payload)
     if not valid:
-        fallback = parse_protocol(processed_protocol)
+        parsed = ParsedProtocol(protocol_id=processed_protocol.protocol_id, steps=[])
         llm_parser_result["llm_parser_schema_valid"] = False
         llm_parser_result["llm_parser_failure_reason"] = reason
-        llm_parser_result["llm_parser_fallback_used"] = True
         parser_quality_report = build_parser_quality_report(
-            fallback, split_protocol_sentences(processed_protocol.raw_text)
+            parsed, split_protocol_sentences(processed_protocol.raw_text)
         )
         return {
-            "parsed": fallback,
+            "parsed": parsed,
             "protocol": processed_protocol,
             "parser_preprocess": preprocess_payload,
             "parser_quality_report": parser_quality_report,
@@ -494,15 +492,14 @@ def run_parser_backend(
 
     parsed = to_parsed_protocol_or_none(normalized_payload)
     if parsed is None:
-        fallback = parse_protocol(processed_protocol)
+        parsed = ParsedProtocol(protocol_id=processed_protocol.protocol_id, steps=[])
         llm_parser_result["llm_parser_schema_valid"] = False
         llm_parser_result["llm_parser_failure_reason"] = "invalid_schema"
-        llm_parser_result["llm_parser_fallback_used"] = True
         parser_quality_report = build_parser_quality_report(
-            fallback, split_protocol_sentences(processed_protocol.raw_text)
+            parsed, split_protocol_sentences(processed_protocol.raw_text)
         )
         return {
-            "parsed": fallback,
+            "parsed": parsed,
             "protocol": processed_protocol,
             "parser_preprocess": preprocess_payload,
             "parser_quality_report": parser_quality_report,

@@ -17,7 +17,7 @@ class ParsedStep(BaseModel):
     step_id: str
     raw_text: str
     action: str
-    entities: dict[str, str] = Field(default_factory=dict)
+    entities: dict[str, Any] = Field(default_factory=dict)
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 

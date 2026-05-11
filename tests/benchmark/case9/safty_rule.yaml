@@ -1,0 +1,358 @@
+- rule_id: no_aspirate_from_closed_container
+  version: "1.0"
+  metadata:
+    name: "Do not aspirate from a closed container"
+    category: liquid_handling
+    severity: error
+    scope: pre_call
+    trigger_api: aspirate_liquid
+    description: "Liquid cannot be aspirated unless the source container is open."
+  bindings:
+    source:
+      from: call.args.source
+      type: container
+      required: true
+  conditions:
+    all:
+      - id: source_is_closed
+        kind: predicate_exists
+        predicate: container_closed
+        args:
+          container: "$source"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot aspirate liquid from a closed source container."
+
+- rule_id: no_dispense_into_closed_container
+  version: "1.0"
+  metadata:
+    name: "Do not dispense into a closed container"
+    category: liquid_handling
+    severity: error
+    scope: pre_call
+    trigger_api: dispense_liquid
+    description: "Liquid cannot be dispensed unless the target container is open."
+  bindings:
+    target:
+      from: call.args.target
+      type: container
+      required: true
+  conditions:
+    all:
+      - id: target_is_closed
+        kind: predicate_exists
+        predicate: container_closed
+        args:
+          container: "$target"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot dispense liquid into a closed target container."
+
+- rule_id: no_drop_into_closed_container
+  version: "1.0"
+  metadata:
+    name: "Do not dispense drops into a closed container"
+    category: liquid_handling
+    severity: error
+    scope: pre_call
+    trigger_api: dispense_drops
+    description: "Drops cannot be added unless the target container is open."
+  bindings:
+    target:
+      from: call.args.target
+      type: container
+      required: true
+  conditions:
+    all:
+      - id: target_is_closed
+        kind: predicate_exists
+        predicate: container_closed
+        args:
+          container: "$target"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot add drops into a closed target container."
+
+- rule_id: no_drops_from_closed_source
+  version: "1.0"
+  metadata:
+    name: "Do not dispense drops from a closed source"
+    category: liquid_handling
+    severity: error
+    scope: pre_call
+    trigger_api: dispense_drops
+    description: "Drops cannot be dispensed unless the source container is open."
+  bindings:
+    source:
+      from: call.args.source
+      type: container
+      required: true
+  conditions:
+    all:
+      - id: source_is_closed
+        kind: predicate_exists
+        predicate: container_closed
+        args:
+          container: "$source"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot dispense drops from a closed source container."
+
+- rule_id: no_reuse_used_tip
+  version: "1.0"
+  metadata:
+    name: "Do not attach a used tip"
+    category: contamination_control
+    severity: error
+    scope: pre_call
+    trigger_api: attach_tip_to_pipette
+    description: "A used pipette tip cannot be attached again."
+  bindings:
+    tip:
+      from: call.args.tip
+      type: tip
+      required: true
+  conditions:
+    all:
+      - id: tip_already_used
+        kind: predicate_exists
+        predicate: tip_used
+        args:
+          tip: "$tip"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot attach a pipette tip that has already been used."
+
+- rule_id: no_reuse_discarded_tip
+  version: "1.0"
+  metadata:
+    name: "Do not attach a discarded tip"
+    category: contamination_control
+    severity: error
+    scope: pre_call
+    trigger_api: attach_tip_to_pipette
+    description: "A discarded pipette tip cannot be attached again."
+  bindings:
+    tip:
+      from: call.args.tip
+      type: tip
+      required: true
+  conditions:
+    all:
+      - id: tip_already_discarded
+        kind: predicate_exists
+        predicate: tip_discarded
+        args:
+          tip: "$tip"
+          waste_container: waste_container1
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot attach a pipette tip that has already been discarded."
+
+- rule_id: no_aspirate_with_used_tip
+  version: "1.0"
+  metadata:
+    name: "Use a fresh tip for aspiration"
+    category: contamination_control
+    severity: error
+    scope: pre_call
+    trigger_api: aspirate_liquid
+    description: "Aspirating with a previously used tip is not allowed."
+  bindings:
+    tip:
+      from: call.args.tip
+      type: tip
+      required: true
+  conditions:
+    all:
+      - id: tip_already_used
+        kind: predicate_exists
+        predicate: tip_used
+        args:
+          tip: "$tip"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot aspirate with a pipette tip that has already been used."
+
+- rule_id: source_volume_sufficient
+  version: "1.0"
+  metadata:
+    name: "Source volume must be sufficient"
+    category: volume_accounting
+    severity: error
+    scope: pre_call
+    trigger_api: aspirate_liquid
+    description: "The source container must contain at least the requested volume."
+  bindings:
+    source:
+      from: call.args.source
+      type: container
+      required: true
+    liquid:
+      from: call.args.liquid
+      type: liquid
+      required: true
+    requested_volume:
+      from: call.args.volume_ul
+      type: number
+      required: true
+    source_volume:
+      from:
+        function: volume
+        args:
+          container: "$source"
+          liquid: "$liquid"
+      type: number
+      required: true
+  conditions:
+    all:
+      - id: source_volume_too_low
+        kind: numeric_compare
+        left: "$source_volume"
+        op: "<"
+        right: "$requested_volume"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "The source container does not contain enough liquid for aspiration."
+
+- rule_id: target_capacity_at_least_requested_volume
+  version: "1.0"
+  metadata:
+    name: "Requested dispense volume must fit target capacity"
+    category: volume_accounting
+    severity: error
+    scope: pre_call
+    trigger_api: dispense_liquid
+    description: "A single dispense request must not exceed the target container capacity."
+  bindings:
+    target:
+      from: call.args.target
+      type: container
+      required: true
+    requested_volume:
+      from: call.args.volume_ul
+      type: number
+      required: true
+    target_capacity:
+      from:
+        function: capacity
+        args:
+          container: "$target"
+      type: number
+      required: true
+  conditions:
+    all:
+      - id: requested_volume_exceeds_capacity
+        kind: numeric_compare
+        left: "$target_capacity"
+        op: "<"
+        right: "$requested_volume"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "The requested dispense volume exceeds the target container capacity."
+
+- rule_id: pipette_must_be_empty_before_tip_ejection
+  version: "1.0"
+  metadata:
+    name: "Pipette must be empty before ejecting tip"
+    category: liquid_handling
+    severity: error
+    scope: pre_call
+    trigger_api: eject_tip
+    description: "A tip cannot be ejected while the pipette still contains liquid."
+  bindings:
+    pipette:
+      from: call.args.pipette
+      type: pipette
+      required: true
+    loaded_volume:
+      from:
+        function: pipette_loaded_volume
+        args:
+          pipette: "$pipette"
+      type: number
+      required: true
+  conditions:
+    all:
+      - id: pipette_not_empty
+        kind: numeric_compare
+        left: "$loaded_volume"
+        op: ">"
+        right: 0
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "The pipette still contains liquid when ejecting the tip."
+
+- rule_id: no_mixing_open_container
+  version: "1.0"
+  metadata:
+    name: "Do not mix an open container"
+    category: physical_safety
+    severity: error
+    scope: pre_call
+    trigger_api: shake_container
+    description: "A tube must be closed before shaking or mixing."
+  bindings:
+    container:
+      from: call.args.container
+      type: container
+      required: true
+  conditions:
+    all:
+      - id: container_is_open
+        kind: predicate_exists
+        predicate: container_open
+        args:
+          container: "$container"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "Cannot shake an open container."
+
+- rule_id: no_stand_open_container
+  version: "1.0"
+  metadata:
+    name: "Do not stand an open container"
+    category: physical_safety
+    severity: warning
+    scope: pre_call
+    trigger_api: stand_at_room_temperature
+    description: "A tube should be closed during room-temperature standing."
+  bindings:
+    container:
+      from: call.args.container
+      type: container
+      required: true
+  conditions:
+    all:
+      - id: container_is_open
+        kind: predicate_exists
+        predicate: container_open
+        args:
+          container: "$container"
+  effect_on_validation:
+    on_true:
+      issue_type: safety_violation
+      blocking: true
+      message: "The container is open during room-temperature standing."
